@@ -1,0 +1,29 @@
+/* Red Solutions' page-level overrides on top of the Modernist tokens — the
+   shop's real brand red (Pantone 1788C, #FF0000), not the design system's
+   default #ec3013. Only the darker ramp steps used by button/link hover and
+   pressed states are overridden; 100–500/900 intentionally keep the
+   system's own ramp (this is a deliberate carry-over from the prototype,
+   not an inconsistency to "fix" — see the Bundles/tag colors, which read a
+   step warmer than the primary button on purpose). */
+:root {
+  --color-accent: #ff0000;
+  --color-accent-600: #de0000;
+  --color-accent-700: #b00000;
+  --color-accent-800: #8a0000;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; }
+
+a { text-decoration: none; }
+button { font-family: inherit; }
+
+.kicker {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
