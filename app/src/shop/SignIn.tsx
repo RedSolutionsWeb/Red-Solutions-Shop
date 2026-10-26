@@ -59,13 +59,6 @@ export function SignIn() {
           </Button>
           <div style={{ minHeight: 18, color: 'var(--color-accent)', fontSize: 12 }}>{error}</div>
         </form>
-        <div style={{ fontSize: 11, opacity: 0.6, marginTop: 8 }}>
-          Demo accounts
-          <br />
-          jackson@redstarne.com · 1234
-          <br />
-          redsolutionsservice@gmail.com · 5678
-        </div>
       </div>
     </div>
   )
