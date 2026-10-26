@@ -4,9 +4,9 @@ import { useAuth } from '../auth/AuthContext'
 import { Field, Input } from '../ui/Field'
 import { Button } from '../ui/Button'
 
-export function ChangePinForm({ onDone }: { onDone: () => void }) {
+export function ChangePasswordForm({ onDone }: { onDone: () => void }) {
   const { refreshIdentity } = useAuth()
-  const [pin, setPin] = useState('')
+  const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -14,16 +14,16 @@ export function ChangePinForm({ onDone }: { onDone: () => void }) {
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
-    if (pin.trim().length < 4) {
-      setError('PIN must be at least 4 characters.')
+    if (password.trim().length < 8) {
+      setError('Password must be at least 8 characters.')
       return
     }
-    if (pin.trim() !== confirm.trim()) {
-      setError('PINs do not match.')
+    if (password.trim() !== confirm.trim()) {
+      setError('Passwords do not match.')
       return
     }
     setBusy(true)
-    const { error: updateError } = await supabase.auth.updateUser({ password: pin.trim() })
+    const { error: updateError } = await supabase.auth.updateUser({ password: password.trim() })
     if (updateError) {
       setBusy(false)
       setError(updateError.message)
@@ -37,16 +37,16 @@ export function ChangePinForm({ onDone }: { onDone: () => void }) {
 
   return (
     <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <Field label="New PIN">
+      <Field label="New password">
         <Input
           type="password"
           autoComplete="new-password"
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
       </Field>
-      <Field label="Confirm PIN">
+      <Field label="Confirm password">
         <Input
           type="password"
           autoComplete="new-password"
@@ -56,7 +56,7 @@ export function ChangePinForm({ onDone }: { onDone: () => void }) {
         />
       </Field>
       <Button type="submit" variant="primary" block disabled={busy}>
-        {busy ? 'Saving…' : 'Save PIN'}
+        {busy ? 'Saving…' : 'Save password'}
       </Button>
       <div style={{ minHeight: 18, color: 'var(--color-accent)', fontSize: 12 }}>{error}</div>
     </form>

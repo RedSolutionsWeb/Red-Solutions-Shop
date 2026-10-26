@@ -28,17 +28,18 @@ Deno.serve(async (req) => {
     const body = await req.json()
 
     if (body.action === 'create_staff') {
-      const { name, email, pin, role } = body
-      if (!name || !email || !pin) return json({ error: 'Name, email and PIN are all required.' }, 400)
+      const { name, email, role, redirectTo } = body
+      if (!name || !email) return json({ error: 'Name and email are required.' }, 400)
       const { data: existing } = await admin.auth.admin.listUsers()
       if (existing.users.some((u) => u.email?.toLowerCase() === String(email).toLowerCase())) {
         return json({ error: 'That email already has an account.' }, 400)
       }
-      const { data, error } = await admin.auth.admin.createUser({
-        email: String(email).trim().toLowerCase(),
-        password: String(pin).trim(),
-        email_confirm: true,
-        user_metadata: { kind: 'staff', role: role === 'owner' ? 'owner' : 'tech', name },
+      // No temp password to hand out: this emails the person a sign-up link
+      // where they pick their own password. handle_new_auth_user creates
+      // their profiles row right away, same as a normal signup.
+      const { data, error } = await admin.auth.admin.inviteUserByEmail(String(email).trim().toLowerCase(), {
+        data: { kind: 'staff', role: role === 'owner' ? 'owner' : 'tech', name },
+        redirectTo: typeof redirectTo === 'string' ? redirectTo : undefined,
       })
       if (error) return json({ error: error.message }, 400)
       return json({ id: data.user?.id })

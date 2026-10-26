@@ -72,8 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: email.trim().toLowerCase(),
       password: password.trim(),
     })
-    // matches the prototype's copy exactly (email + PIN sign-in)
-    if (error) return { error: 'That email and PIN do not match an account.' }
+    if (error) return { error: 'That email and password do not match an account.' }
     return { error: null }
   }
 

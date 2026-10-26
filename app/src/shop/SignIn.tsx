@@ -7,7 +7,7 @@ import { Logo } from '../ui/Logo'
 export function SignIn() {
   const { signIn } = useAuth()
   const [email, setEmail] = useState('')
-  const [pin, setPin] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -15,7 +15,7 @@ export function SignIn() {
     e.preventDefault()
     setBusy(true)
     setError('')
-    const { error } = await signIn(email, pin)
+    const { error } = await signIn(email, password)
     setBusy(false)
     if (error) setError(error)
   }
@@ -45,12 +45,12 @@ export function SignIn() {
               required
             />
           </Field>
-          <Field label="PIN">
+          <Field label="Password">
             <Input
               type="password"
               autoComplete="current-password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </Field>

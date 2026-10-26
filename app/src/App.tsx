@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext'
 import { ToastProvider } from './ui/Toast'
 import { ReloadProvider } from './shop/ReloadContext'
 import { SignIn } from './shop/SignIn'
-import { SetPin } from './shop/SetPin'
+import { SetPassword } from './shop/SetPassword'
 import { Shell } from './shop/Shell'
 import { JobBoard } from './shop/JobBoard'
 import { Intake } from './shop/Intake'
@@ -29,7 +29,7 @@ function Gate() {
 
   if (identity.kind === 'dealer') return <DealerPortalApp />
 
-  if (identity.profile.must_change_password) return <SetPin />
+  if (identity.profile.must_change_password) return <SetPassword />
 
   return (
     <ReloadProvider>

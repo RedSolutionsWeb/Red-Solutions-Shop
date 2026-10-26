@@ -6,7 +6,7 @@ import { useNavCounts } from './navCounts'
 import { Button } from '../ui/Button'
 import { Logo } from '../ui/Logo'
 import { Dialog } from '../ui/Dialog'
-import { ChangePinForm } from './ChangePin'
+import { ChangePasswordForm } from './ChangePassword'
 import { useToast } from '../ui/Toast'
 
 interface NavItem {
@@ -125,7 +125,7 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
             <span style={{ opacity: 0.6 }}>{isOwner ? 'Owner' : 'Tech'}</span>
           </div>
           <Button variant="ghost" onClick={() => setPinOpen(true)}>
-            Change PIN
+            Change password
           </Button>
           <Button variant="ghost" onClick={() => signOut()}>
             Sign out
@@ -144,7 +144,7 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
 
       {pinOpen && (
         <Dialog
-          title="Change your PIN"
+          title="Change your password"
           onClose={() => setPinOpen(false)}
           actions={
             <Button variant="ghost" onClick={() => setPinOpen(false)}>
@@ -152,10 +152,10 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
             </Button>
           }
         >
-          <ChangePinForm
+          <ChangePasswordForm
             onDone={() => {
               setPinOpen(false)
-              toast('PIN updated')
+              toast('Password updated')
             }}
           />
         </Dialog>

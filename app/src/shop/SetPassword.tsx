@@ -1,7 +1,7 @@
 import { Logo } from '../ui/Logo'
-import { ChangePinForm } from './ChangePin'
+import { ChangePasswordForm } from './ChangePassword'
 
-export function SetPin() {
+export function SetPassword() {
   return (
     <div
       style={{
@@ -15,12 +15,12 @@ export function SetPin() {
     >
       <div style={{ width: 400, border: '2px solid var(--color-divider)', padding: 24 }}>
         <Logo />
-        <div className="kicker" style={{ marginTop: 8 }}>Choose your own PIN</div>
+        <div className="kicker" style={{ marginTop: 8 }}>Choose your own password</div>
         <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
-          For security, pick a PIN only you know before you continue.
+          For security, pick a password only you know before you continue.
         </p>
         <hr className="hr" />
-        <ChangePinForm onDone={() => {}} />
+        <ChangePasswordForm onDone={() => {}} />
       </div>
     </div>
   )
