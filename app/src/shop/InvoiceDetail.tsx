@@ -181,9 +181,15 @@ export function InvoiceDetail() {
         </div>
 
         <div style={{ display: 'flex', gap: 8, marginTop: 20, alignItems: 'center' }}>
-          <Button variant="primary" onClick={() => setSendOpen(true)}>
-            Send to QuickBooks Online
-          </Button>
+          {invoice.qbo_link ? (
+            <Button variant="primary" onClick={() => window.open(invoice.qbo_link!, '_blank')}>
+              View in QuickBooks
+            </Button>
+          ) : (
+            <Button variant="primary" onClick={() => setSendOpen(true)}>
+              Send to QuickBooks Online
+            </Button>
+          )}
           <Button variant="secondary" onClick={downloadInvoiceCsv}>
             Download QuickBooks CSV
           </Button>

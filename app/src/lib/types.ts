@@ -167,6 +167,8 @@ export interface Invoice {
   subtotal: number
   tax_amount: number
   total: number
+  qbo_invoice_id: string | null
+  qbo_link: string | null
 }
 
 export interface InvoiceLine {
