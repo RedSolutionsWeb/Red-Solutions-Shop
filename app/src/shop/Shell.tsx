@@ -1,9 +1,13 @@
+import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useReload } from './ReloadContext'
 import { useNavCounts } from './navCounts'
 import { Button } from '../ui/Button'
 import { Logo } from '../ui/Logo'
+import { Dialog } from '../ui/Dialog'
+import { ChangePinForm } from './ChangePin'
+import { useToast } from '../ui/Toast'
 
 interface NavItem {
   key: string
@@ -44,6 +48,8 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
   const { key } = useReload()
   const counts = useNavCounts(key, isOwner)
   const items = NAV.filter((n) => !n.ownerOnly || isOwner)
+  const toast = useToast()
+  const [pinOpen, setPinOpen] = useState(false)
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '212px 1fr', minHeight: '100vh' }}>
@@ -118,6 +124,9 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
             <strong>{name}</strong>{' '}
             <span style={{ opacity: 0.6 }}>{isOwner ? 'Owner' : 'Tech'}</span>
           </div>
+          <Button variant="ghost" onClick={() => setPinOpen(true)}>
+            Change PIN
+          </Button>
           <Button variant="ghost" onClick={() => signOut()}>
             Sign out
           </Button>
@@ -132,6 +141,25 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
           <Outlet />
         </main>
       </div>
+
+      {pinOpen && (
+        <Dialog
+          title="Change your PIN"
+          onClose={() => setPinOpen(false)}
+          actions={
+            <Button variant="ghost" onClick={() => setPinOpen(false)}>
+              Cancel
+            </Button>
+          }
+        >
+          <ChangePinForm
+            onDone={() => {
+              setPinOpen(false)
+              toast('PIN updated')
+            }}
+          />
+        </Dialog>
+      )}
     </div>
   )
 }
