@@ -30,7 +30,7 @@ export function useNavCounts(reloadKey: number, isOwner: boolean) {
     let cancelled = false
     async function load() {
       const [tickets, parts, bundles, customers, invoices] = await Promise.all([
-        supabase.from('tickets').select('id', { count: 'exact', head: true }).neq('status', 'invoiced'),
+        supabase.from('tickets').select('id', { count: 'exact', head: true }).neq('status', 'invoiced').is('deleted_at', null),
         supabase.from('parts_view').select('sku', { count: 'exact', head: true }),
         supabase.from('bundles').select('id', { count: 'exact', head: true }),
         supabase.from('customers').select('id', { count: 'exact', head: true }),

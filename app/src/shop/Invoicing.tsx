@@ -22,7 +22,7 @@ export function Invoicing() {
     const [invRes, custRes, tixRes, ordRes, dealerRes, profRes] = await Promise.all([
       supabase.from('invoices').select('*').is('voided_at', null).order('created_at'),
       supabase.from('customers').select('*'),
-      supabase.from('tickets').select('*'),
+      supabase.from('tickets').select('*').is('deleted_at', null),
       supabase.from('orders').select('*'),
       supabase.from('dealers').select('*'),
       supabase.from('profiles').select('*'),

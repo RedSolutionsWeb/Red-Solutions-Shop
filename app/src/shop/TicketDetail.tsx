@@ -10,6 +10,7 @@ import { STAGES } from '../lib/types'
 import type { Customer, LaborLine, PartLine, PartView, Profile, Ticket, TimeEntry, Warranty, BundlePricing } from '../lib/types'
 import { Button } from '../ui/Button'
 import { Field, Input, Select, Textarea } from '../ui/Field'
+import { Dialog } from '../ui/Dialog'
 
 function formatElapsed(ms: number) {
   const total = Math.max(0, Math.floor(ms / 1000))
@@ -41,6 +42,8 @@ export function TicketDetail() {
   const [ticketTimers, setTicketTimers] = useState<TimeEntry[]>([])
   const [timerDesc, setTimerDesc] = useState('')
   const [now, setNow] = useState(Date.now())
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
   const [partLines, setPartLines] = useState<PartLine[]>([])
   const [parts, setParts] = useState<PartView[]>([])
   const [bundles, setBundles] = useState<BundlePricing[]>([])
@@ -61,7 +64,7 @@ export function TicketDetail() {
   async function load() {
     if (!id) return
     const [tRes, laborRes, linesRes, partsRes, bundlesRes, profilesRes, invRes, ticketTimersRes, myTimerRes] = await Promise.all([
-      supabase.from('tickets').select('*').eq('id', id).single(),
+      supabase.from('tickets').select('*').eq('id', id).is('deleted_at', null).maybeSingle(),
       supabase.from('labor_lines').select('*').eq('ticket_id', id).order('id'),
       supabase.from('part_lines').select('*').eq('ticket_id', id).order('id'),
       supabase.from('parts_view').select('*'),
@@ -71,6 +74,10 @@ export function TicketDetail() {
       supabase.from('time_entries').select('*').eq('ticket_id', id).is('stopped_at', null),
       myId ? supabase.from('time_entries').select('*').eq('tech_id', myId).is('stopped_at', null).maybeSingle() : null,
     ])
+    if (!tRes.data) {
+      navigate('/')
+      return
+    }
     setTicket(tRes.data as Ticket)
     setLabor((laborRes.data as LaborLine[]) ?? [])
     setPartLines((linesRes.data as PartLine[]) ?? [])
@@ -238,6 +245,18 @@ export function TicketDetail() {
     load()
   }
 
+  async function deleteTicket() {
+    if (!ticket) return
+    setDeleteError('')
+    const { error } = await supabase.rpc('delete_ticket', { p_ticket_id: ticket.id })
+    if (error) {
+      setDeleteError(error.message)
+      return
+    }
+    toast(`${ticket.id} deleted`)
+    navigate('/')
+  }
+
   async function createInvoice() {
     if (!ticket) return
     const { data, error } = await supabase.rpc('create_invoice_from_ticket', { p_ticket_id: ticket.id })
@@ -256,9 +275,16 @@ export function TicketDetail() {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1.4fr minmax(320px, 1fr)', gap: 32 }}>
       <div>
-        <Button variant="ghost" onClick={() => navigate('/')}>
-          ← Job board
-        </Button>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Button variant="ghost" onClick={() => navigate('/')}>
+            ← Job board
+          </Button>
+          {ticket.status === 'intake' && (
+            <Button variant="ghost" onClick={() => setDeleteOpen(true)}>
+              Delete ticket
+            </Button>
+          )}
+        </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: 8 }}>
           <div>
@@ -549,6 +575,26 @@ export function TicketDetail() {
           )}
         </div>
       </div>
+
+      {deleteOpen && (
+        <Dialog
+          title={`Delete ${ticket.id}?`}
+          onClose={() => setDeleteOpen(false)}
+          actions={
+            <>
+              <Button variant="secondary" onClick={() => setDeleteOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={deleteTicket}>
+                Delete ticket
+              </Button>
+            </>
+          }
+        >
+          <p>This removes the ticket entirely. Only available while it's still in Intake.</p>
+          {deleteError && <div style={{ color: 'var(--color-accent)', fontSize: 12 }}>{deleteError}</div>}
+        </Dialog>
+      )}
     </div>
   )
 
