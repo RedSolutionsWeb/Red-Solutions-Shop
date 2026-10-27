@@ -54,6 +54,10 @@ export function InvoiceDetail() {
         setDealer(d as Dealer)
       }
     }
+    if (!inv?.ticket_id && !inv?.order_id && inv?.customer_id) {
+      const { data: c } = await supabase.from('customers').select('*').eq('id', inv.customer_id).single()
+      setCustomer(c as Customer)
+    }
   }
 
   useEffect(() => {
@@ -141,7 +145,7 @@ export function InvoiceDetail() {
               <br />
               Due {invoice.due_date} · {invoice.terms}
               <br />
-              {ticket ? `Ticket ${ticket.id}` : order ? `Order ${order.id}` : ''}
+              {ticket ? `Ticket ${ticket.id}` : order ? `Order ${order.id}` : 'Parts sale'}
             </div>
           </div>
         </div>
@@ -213,12 +217,14 @@ export function InvoiceDetail() {
           <Button variant="secondary" onClick={downloadInvoiceCsv}>
             Download QuickBooks CSV
           </Button>
-          <Button
-            variant="secondary"
-            onClick={() => navigate(ticket ? `/tickets/${ticket.id}` : `/orders/${order?.id}`)}
-          >
-            {ticket ? 'Back to ticket' : 'Back to order'}
-          </Button>
+          {(ticket || order) && (
+            <Button
+              variant="secondary"
+              onClick={() => navigate(ticket ? `/tickets/${ticket.id}` : `/orders/${order?.id}`)}
+            >
+              {ticket ? 'Back to ticket' : 'Back to order'}
+            </Button>
+          )}
           {isStaff && (
             <Button variant="ghost" onClick={() => setDeleteOpen(true)}>
               Delete invoice

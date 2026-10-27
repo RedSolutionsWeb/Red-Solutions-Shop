@@ -22,6 +22,8 @@ export function invoiceMemo(ctx: QboContext): string {
   } else if (ctx.order) {
     const po = ctx.order.po ? ` — PO ${ctx.order.po}` : ''
     memo = `Dealer order ${ctx.order.id}${po} — ${ctx.order.ship_method ?? ''}`
+  } else {
+    memo = 'Parts sale'
   }
   if (ctx.rep) memo += (memo ? ' — ' : '') + `sold by ${ctx.rep.name}`
   return memo
@@ -46,7 +48,11 @@ const QBO_HEADER = [
 export function invoiceToQboRows(ctx: QboContext): string[][] {
   const customerName = ctx.customer?.name ?? ctx.dealer?.name ?? ''
   const memo = invoiceMemo(ctx)
-  const taxable = ctx.order ? 'N' : ctx.ticket?.warranty === 'none' ? 'Y' : 'N'
+  // invoice.tax_exempt is already the authoritative answer for every
+  // invoice source (ticket warranty, dealer resale, or a retail sale's
+  // own exempt checkbox) — derive from it directly instead of
+  // re-guessing from ticket/order presence.
+  const taxable = ctx.invoice.tax_exempt ? 'N' : 'Y'
 
   return ctx.lines.map((line) => [
     ctx.invoice.id,

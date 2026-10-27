@@ -168,6 +168,7 @@ export interface Invoice {
   id: string
   ticket_id: string | null
   order_id: number | null
+  customer_id: number | null
   date: string
   due_date: string | null
   qbo_status: QboStatus
@@ -192,4 +193,5 @@ export interface InvoiceLine {
   unit_price: number
   amount: number
   kit: BundleComponent[] | null
+  sku: string | null
 }

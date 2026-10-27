@@ -45,6 +45,7 @@ export function Invoicing() {
       return t?.customer_id ? customers[t.customer_id]?.name : ''
     }
     if (inv.order_id) return dealers[orders[inv.order_id]?.dealer_id]?.name ?? ''
+    if (inv.customer_id) return customers[inv.customer_id]?.name ?? ''
     return ''
   }
 
@@ -110,7 +111,7 @@ export function Invoicing() {
             <tr key={inv.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/invoices/${inv.id}`)}>
               <td>{inv.id}</td>
               <td>{customerFor(inv)}</td>
-              <td>{inv.ticket_id ?? (inv.order_id ? `Order ${inv.order_id}` : '')}</td>
+              <td>{inv.ticket_id ?? (inv.order_id ? `Order ${inv.order_id}` : 'Parts sale')}</td>
               <td>{inv.date}</td>
               <td>{inv.due_date}</td>
               <td>{inv.rep ? profiles[inv.rep]?.name ?? 'Unassigned' : 'Unassigned'}</td>

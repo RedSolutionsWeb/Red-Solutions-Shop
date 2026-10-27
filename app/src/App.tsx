@@ -7,6 +7,7 @@ import { SetPassword } from './shop/SetPassword'
 import { Shell } from './shop/Shell'
 import { JobBoard } from './shop/JobBoard'
 import { Intake } from './shop/Intake'
+import { RetailSale } from './shop/RetailSale'
 import { TicketDetail } from './shop/TicketDetail'
 import { Inventory } from './shop/Inventory'
 import { Bundles } from './shop/Bundles'
@@ -38,6 +39,7 @@ function Gate() {
         <Route element={<Shell />}>
           <Route index element={<JobBoard />} />
           <Route path="intake" element={<Intake />} />
+          <Route path="sale" element={<RetailSale />} />
           <Route path="tickets/:id" element={<TicketDetail />} />
           <Route path="inventory" element={<Inventory />} />
           <Route path="bundles" element={<Bundles />} />
