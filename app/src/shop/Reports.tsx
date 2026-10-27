@@ -18,13 +18,15 @@ export function Reports() {
         supabase.from('invoices').select('*').is('voided_at', null),
         supabase.from('labor_lines').select('*'),
         supabase.from('part_lines').select('*'),
-        supabase.from('tickets').select('*'),
+        supabase.from('tickets').select('*').is('deleted_at', null),
         supabase.from('profiles').select('*'),
       ])
+      const liveTickets = (ticketsRes.data as Ticket[]) ?? []
+      const liveTicketIds = new Set(liveTickets.map((t) => t.id))
       setInvoices((invRes.data as Invoice[]) ?? [])
-      setLabor((laborRes.data as LaborLine[]) ?? [])
-      setPartLines((partsRes.data as PartLine[]) ?? [])
-      setTickets((ticketsRes.data as Ticket[]) ?? [])
+      setLabor(((laborRes.data as LaborLine[]) ?? []).filter((l) => liveTicketIds.has(l.ticket_id)))
+      setPartLines(((partsRes.data as PartLine[]) ?? []).filter((p) => liveTicketIds.has(p.ticket_id)))
+      setTickets(liveTickets)
       setProfiles((profRes.data as Profile[]) ?? [])
     }
     load()
