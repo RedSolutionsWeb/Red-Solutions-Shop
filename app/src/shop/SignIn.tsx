@@ -32,7 +32,7 @@ export function SignIn() {
       }}
     >
       <div style={{ width: 400, border: '2px solid var(--color-divider)', padding: 24 }}>
-        <Logo />
+        <Logo height={72} />
         <div className="kicker" style={{ marginTop: 8 }}>Repair &amp; inventory</div>
         <hr className="hr" />
         <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

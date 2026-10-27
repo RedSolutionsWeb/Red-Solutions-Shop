@@ -150,15 +150,15 @@ function DealerPortalInner({ dealerUser }: { dealerUser: DealerUser }) {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header
         style={{
-          background: '#000',
-          color: '#fff',
+          background: 'var(--color-bg)',
+          borderBottom: '2px solid var(--color-divider)',
           padding: '16px 24px',
           display: 'flex',
           alignItems: 'center',
           gap: 16,
         }}
       >
-        <Logo variant="light" height={28} />
+        <Logo height={28} />
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 16, fontSize: 13 }}>
           {account && (
             <span>

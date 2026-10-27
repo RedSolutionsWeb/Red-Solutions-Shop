@@ -14,7 +14,7 @@ export function SetPassword() {
       }}
     >
       <div style={{ width: 400, border: '2px solid var(--color-divider)', padding: 24 }}>
-        <Logo />
+        <Logo height={72} />
         <div className="kicker" style={{ marginTop: 8 }}>Choose your own password</div>
         <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
           For security, pick a password only you know before you continue.
