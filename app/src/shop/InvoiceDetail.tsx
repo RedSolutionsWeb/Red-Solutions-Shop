@@ -17,7 +17,7 @@ export function InvoiceDetail() {
   const navigate = useNavigate()
   const { identity } = useAuth()
   const toast = useToast()
-  const isManager = identity?.kind === 'staff' && (identity.profile.role === 'owner' || identity.profile.role === 'sales')
+  const isStaff = identity?.kind === 'staff'
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [lines, setLines] = useState<InvoiceLine[]>([])
   const [ticket, setTicket] = useState<Ticket | null>(null)
@@ -219,7 +219,7 @@ export function InvoiceDetail() {
           >
             {ticket ? 'Back to ticket' : 'Back to order'}
           </Button>
-          {isManager && (
+          {isStaff && (
             <Button variant="ghost" onClick={() => setDeleteOpen(true)}>
               Delete invoice
             </Button>
