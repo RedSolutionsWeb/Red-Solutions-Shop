@@ -61,8 +61,8 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
           flexDirection: 'column',
         }}
       >
-        <Logo height={64} />
-        <div className="kicker" style={{ marginTop: 8, marginBottom: 16 }}>
+        <Logo height={52} />
+        <div className="kicker" style={{ marginTop: 16, marginBottom: 16 }}>
           Repair &amp; inventory
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
