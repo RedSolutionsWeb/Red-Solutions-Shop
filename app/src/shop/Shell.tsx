@@ -52,7 +52,7 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
   const [pinOpen, setPinOpen] = useState(false)
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '212px 1fr', minHeight: '100vh' }}>
+    <div className="app-shell">
       <aside
         style={{
           borderRight: '2px solid var(--color-divider)',
@@ -65,7 +65,7 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
         <div className="kicker" style={{ marginTop: 16, marginBottom: 16 }}>
           Repair &amp; inventory
         </div>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+        <nav className="shell-nav">
           {items.map((item) => {
             const count = item.count?.(counts)
             return (
@@ -113,6 +113,7 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
         <header
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'center',
             justifyContent: 'flex-end',
             gap: 12,

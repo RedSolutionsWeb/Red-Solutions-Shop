@@ -13,7 +13,7 @@ export function SetPassword() {
         background: 'var(--color-bg)',
       }}
     >
-      <div style={{ width: 400, border: '2px solid var(--color-divider)', padding: 24 }}>
+      <div style={{ width: 'min(400px, 92vw)', border: '2px solid var(--color-divider)', padding: 24 }}>
         <Logo height={72} />
         <div className="kicker" style={{ marginTop: 8 }}>Choose your own password</div>
         <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>

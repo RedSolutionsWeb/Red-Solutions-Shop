@@ -31,7 +31,7 @@ export function SignIn() {
         background: 'var(--color-bg)',
       }}
     >
-      <div style={{ width: 400, border: '2px solid var(--color-divider)', padding: 24 }}>
+      <div style={{ width: 'min(400px, 92vw)', border: '2px solid var(--color-divider)', padding: 24 }}>
         <Logo height={72} />
         <div className="kicker" style={{ marginTop: 8 }}>Repair &amp; inventory</div>
         <hr className="hr" />
