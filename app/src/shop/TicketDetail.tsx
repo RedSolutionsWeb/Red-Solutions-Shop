@@ -168,7 +168,11 @@ export function TicketDetail() {
       setFlash('Describe the work first')
       return
     }
-    const hours = Number(laborHours) || 1
+    const hours = Number(laborHours)
+    if (!hours || hours <= 0) {
+      setFlash('Enter how many hours this took')
+      return
+    }
     const rate = Number(laborRate) || settings.labor_rate
     await supabase.from('labor_lines').insert({ ticket_id: ticket.id, description: laborDesc, hours, rate })
     setLaborDesc('')
