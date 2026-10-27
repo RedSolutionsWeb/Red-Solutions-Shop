@@ -70,7 +70,7 @@ export function TicketDetail() {
       supabase.from('parts_view').select('*'),
       supabase.from('bundle_pricing').select('*'),
       supabase.from('profiles').select('*'),
-      supabase.from('invoices').select('id').eq('ticket_id', id).maybeSingle(),
+      supabase.from('invoices').select('id').eq('ticket_id', id).is('voided_at', null).maybeSingle(),
       supabase.from('time_entries').select('*').eq('ticket_id', id).is('stopped_at', null),
       myId ? supabase.from('time_entries').select('*').eq('tech_id', myId).is('stopped_at', null).maybeSingle() : null,
     ])

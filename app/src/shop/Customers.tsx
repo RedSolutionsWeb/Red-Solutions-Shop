@@ -23,7 +23,7 @@ export function Customers() {
       const [customersRes, ticketsRes, invoicesRes] = await Promise.all([
         supabase.from('customers').select('*').order('name'),
         supabase.from('tickets').select('id,customer_id,status').is('deleted_at', null).order('opened_at'),
-        supabase.from('invoices').select('ticket_id,total'),
+        supabase.from('invoices').select('ticket_id,total').is('voided_at', null),
       ])
       const tickets = ticketsRes.data ?? []
       const invoices = invoicesRes.data ?? []

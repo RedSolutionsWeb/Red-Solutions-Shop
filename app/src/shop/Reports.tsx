@@ -15,7 +15,7 @@ export function Reports() {
   useEffect(() => {
     async function load() {
       const [invRes, laborRes, partsRes, ticketsRes, profRes] = await Promise.all([
-        supabase.from('invoices').select('*'),
+        supabase.from('invoices').select('*').is('voided_at', null),
         supabase.from('labor_lines').select('*'),
         supabase.from('part_lines').select('*'),
         supabase.from('tickets').select('*'),

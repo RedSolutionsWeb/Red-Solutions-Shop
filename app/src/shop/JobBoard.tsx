@@ -47,7 +47,7 @@ export function JobBoard() {
         supabase.from('customers').select('*'),
         supabase.from('profiles').select('*'),
         supabase.from('parts_view').select('qty_on_hand,category'),
-        supabase.from('invoices').select('qbo_status,total,date'),
+        supabase.from('invoices').select('qbo_status,total,date').is('voided_at', null),
       ])
       if (cancelled) return
       setTickets((ticketsRes.data as BoardTicket[]) ?? [])

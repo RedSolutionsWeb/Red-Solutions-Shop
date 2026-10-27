@@ -32,7 +32,7 @@ export function DealerOrderDetail() {
     setLines((ls as OrderLine[]) ?? [])
     const { data: p } = await supabase.from('parts_view').select('*')
     setParts(Object.fromEntries(((p as PartView[]) ?? []).map((x) => [x.sku, x])))
-    const { data: inv } = await supabase.from('invoices').select('id').eq('order_id', id).maybeSingle()
+    const { data: inv } = await supabase.from('invoices').select('id').eq('order_id', id).is('voided_at', null).maybeSingle()
     setInvoiceId((inv as { id: string } | null)?.id ?? null)
   }
 
