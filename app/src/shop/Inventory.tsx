@@ -15,7 +15,7 @@ export function Inventory() {
   const settings = useShopSettings()
   const { bump } = useReload()
   const toast = useToast()
-  const isOwner = identity?.kind === 'staff' && identity.profile.role === 'owner'
+  const isManager = identity?.kind === 'staff' && (identity.profile.role === 'owner' || identity.profile.role === 'sales')
 
   const [parts, setParts] = useState<PartView[]>([])
   const [search, setSearch] = useState('')
@@ -111,9 +111,9 @@ export function Inventory() {
             <th>Part</th>
             <th>Category</th>
             <th>On hand</th>
-            {isOwner && <th>Cost</th>}
+            {isManager && <th>Cost</th>}
             <th>Retail</th>
-            {isOwner && <th>Margin</th>}
+            {isManager && <th>Margin</th>}
             <th />
           </tr>
         </thead>
@@ -130,9 +130,9 @@ export function Inventory() {
                 <td style={{ color: low ? 'var(--color-accent)' : undefined }}>
                   {p.category === 'Service' ? '—' : p.qty_on_hand}
                 </td>
-                {isOwner && <td>{costOrUnknown(p.cost)}</td>}
+                {isManager && <td>{costOrUnknown(p.cost)}</td>}
                 <td>{money(p.price)}</td>
-                {isOwner && <td>{marginPct(p.price, p.cost)}</td>}
+                {isManager && <td>{marginPct(p.price, p.cost)}</td>}
                 <td>
                   <button className="btn btn-ghost" onClick={(e) => (e.stopPropagation(), setDrawerSku(p.sku))}>
                     Edit
@@ -152,7 +152,7 @@ export function Inventory() {
 
       {addOpen && (
         <AddItemDialog
-          isOwner={isOwner}
+          isManager={isManager}
           existing={parts}
           onClose={() => setAddOpen(false)}
           onAdded={(sku) => {
@@ -166,7 +166,7 @@ export function Inventory() {
       {drawerSku && (
         <PartDrawer
           sku={drawerSku}
-          isOwner={isOwner}
+          isManager={isManager}
           onClose={() => setDrawerSku(null)}
           onSaved={() => {
             load()
@@ -208,12 +208,12 @@ function Kpi({ label, value, accent }: { label: string; value: number | string; 
 }
 
 function AddItemDialog({
-  isOwner,
+  isManager,
   existing,
   onClose,
   onAdded,
 }: {
-  isOwner: boolean
+  isManager: boolean
   existing: PartView[]
   onClose: () => void
   onAdded: (sku: string) => void
@@ -240,7 +240,7 @@ function AddItemDialog({
       name: name.trim(),
       category,
       qty_on_hand: Number(qty) || 0,
-      cost: isOwner ? Number(cost) || 0 : 0,
+      cost: isManager ? Number(cost) || 0 : 0,
       price: Number(price) || 0,
     })
     if (err) {
@@ -286,7 +286,7 @@ function AddItemDialog({
         <Field label="On hand">
           <Input value={qty} onChange={(e) => setQty(e.target.value)} />
         </Field>
-        {isOwner && (
+        {isManager && (
           <Field label="Unit cost">
             <Input placeholder="optional" value={cost} onChange={(e) => setCost(e.target.value)} />
           </Field>
@@ -302,12 +302,12 @@ function AddItemDialog({
 
 function PartDrawer({
   sku,
-  isOwner,
+  isManager,
   onClose,
   onSaved,
 }: {
   sku: string
-  isOwner: boolean
+  isManager: boolean
   onClose: () => void
   onSaved: () => void
 }) {
@@ -344,7 +344,7 @@ function PartDrawer({
       qty_on_hand: Number(qty) || 0,
       price: Number(price) || 0,
     }
-    if (isOwner) patch.cost = Number(cost) || 0
+    if (isManager) patch.cost = Number(cost) || 0
     await supabase.from('parts').update(patch).eq('sku', sku)
     onSaved()
     onClose()
@@ -379,7 +379,7 @@ function PartDrawer({
       onClose={onClose}
       actions={
         <>
-          {isOwner && (
+          {isManager && (
             <Button variant="ghost" onClick={del}>
               Delete part
             </Button>
@@ -403,13 +403,13 @@ function PartDrawer({
         <Field label="On hand">
           <Input value={qty} onChange={(e) => setQty(e.target.value)} />
         </Field>
-        {isOwner && (
+        {isManager && (
           <Field label="Unit cost">
             <Input value={cost} onChange={(e) => setCost(e.target.value)} />
           </Field>
         )}
         <Field label="Retail price">
-          <Input value={price} onChange={(e) => setPrice(e.target.value)} disabled={!isOwner} />
+          <Input value={price} onChange={(e) => setPrice(e.target.value)} disabled={!isManager} />
         </Field>
         <Field label="Receive stock (add to on hand)">
           <div style={{ display: 'flex', gap: 8 }}>
@@ -420,7 +420,7 @@ function PartDrawer({
           </div>
         </Field>
         {error && <div style={{ color: 'var(--color-accent)', fontSize: 12 }}>{error}</div>}
-        {isOwner && Number(cost) > 0 && (
+        {isManager && Number(cost) > 0 && (
           <div className="muted" style={{ fontSize: 12 }}>
             margin {marginPct(Number(price), Number(cost))} · stock value {money(Number(qty) * Number(cost))}
           </div>

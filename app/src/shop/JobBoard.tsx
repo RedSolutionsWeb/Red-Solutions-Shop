@@ -37,7 +37,7 @@ export function JobBoard() {
   const [billedThisMonth, setBilledThisMonth] = useState(0)
   const [draftInvoices, setDraftInvoices] = useState(0)
 
-  const isOwner = identity?.kind === 'staff' && identity.profile.role === 'owner'
+  const isManager = identity?.kind === 'staff' && (identity.profile.role === 'owner' || identity.profile.role === 'sales')
 
   useEffect(() => {
     let cancelled = false
@@ -108,7 +108,7 @@ export function JobBoard() {
           note={`at or below ${settings.low_stock_threshold}`}
           accent={lowStockCount > 0}
         />
-        {isOwner ? (
+        {isManager ? (
           <Kpi label="Billed this month" value={money(billedThisMonth)} note={`${draftInvoices} drafts unsent`} />
         ) : (
           <Kpi label="Invoices to send" value={draftInvoices} note="drafts waiting" />

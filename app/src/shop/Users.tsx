@@ -65,7 +65,10 @@ export function Users() {
   return (
     <div>
       <h2 style={{ margin: 0 }}>Users</h2>
-      <p className="muted">Techs see retail prices only. Owners see cost, margin, dealers and reports.</p>
+      <p className="muted">
+        Techs see retail prices only. Sales and Owner also see cost, margin, dealers and reports — only Owner can
+        manage users.
+      </p>
 
       <table className="table" style={{ marginTop: 16 }}>
         <thead>
@@ -85,10 +88,16 @@ export function Users() {
               </td>
               <td>{u.email}</td>
               <td>
-                <Select value={u.role} onChange={(e) => setUserRole(u.id, e.target.value as Role)}>
-                  <option value="owner">Owner — full access</option>
-                  <option value="tech">Tech — no costs</option>
-                </Select>
+                {u.role === 'owner' ? (
+                  <span title="There's only ever one owner — manage this account's own role from the owner itself.">
+                    Owner — full access
+                  </span>
+                ) : (
+                  <Select value={u.role} onChange={(e) => setUserRole(u.id, e.target.value as Role)}>
+                    <option value="tech">Tech — no costs</option>
+                    <option value="sales">Sales — everything but users</option>
+                  </Select>
+                )}
               </td>
               <td>
                 {u.id !== myId && (
@@ -115,8 +124,8 @@ export function Users() {
         </Field>
         <Field label="Access">
           <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-            <option value="tech">Tech</option>
-            <option value="owner">Owner</option>
+            <option value="tech">Tech — no costs</option>
+            <option value="sales">Sales — everything but users</option>
           </Select>
         </Field>
         <Button variant="primary" onClick={addUser}>

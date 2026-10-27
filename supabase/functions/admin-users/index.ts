@@ -48,8 +48,12 @@ Deno.serve(async (req) => {
       // No temp password to hand out: this emails the person a sign-up link
       // where they pick their own password. handle_new_auth_user creates
       // their profiles row right away, same as a normal signup.
+      // Never 'owner' here regardless of what's sent — there's exactly one
+      // owner account (enforced in the database too) and it isn't handed
+      // out through invites.
+      const safeRole = role === 'sales' ? 'sales' : 'tech'
       const { data, error } = await admin.auth.admin.inviteUserByEmail(String(email).trim().toLowerCase(), {
-        data: { kind: 'staff', role: role === 'owner' ? 'owner' : 'tech', name },
+        data: { kind: 'staff', role: safeRole, name },
         redirectTo: typeof redirectTo === 'string' ? redirectTo : undefined,
       })
       if (error) return json({ error: error.message }, 400)

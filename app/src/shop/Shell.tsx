@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import type { Role } from '../lib/types'
 import { useReload } from './ReloadContext'
 import { useNavCounts } from './navCounts'
 import { Button } from '../ui/Button'
@@ -13,6 +14,8 @@ interface NavItem {
   key: string
   label: string
   path: string
+  // "manager" = owner or sales (everything except user management / settings)
+  managerOnly?: boolean
   ownerOnly?: boolean
   count?: (c: ReturnType<typeof useNavCounts>) => number | undefined
 }
@@ -27,27 +30,31 @@ const NAV: NavItem[] = [
     key: 'orders',
     label: 'Dealer orders',
     path: '/orders',
-    ownerOnly: true,
+    managerOnly: true,
     count: (c) => (c.pendingOrders > 0 ? c.pendingOrders : undefined),
   },
-  { key: 'dealers', label: 'Dealers', path: '/dealers', ownerOnly: true, count: (c) => c.dealers },
+  { key: 'dealers', label: 'Dealers', path: '/dealers', managerOnly: true, count: (c) => c.dealers },
   { key: 'invoices', label: 'Invoicing', path: '/invoices', count: (c) => c.invoices },
-  { key: 'reports', label: 'Reports', path: '/reports', ownerOnly: true },
+  { key: 'reports', label: 'Reports', path: '/reports', managerOnly: true },
   { key: 'users', label: 'Users', path: '/users', ownerOnly: true },
 ]
+
+const ROLE_LABEL: Record<Role, string> = { owner: 'Owner', sales: 'Sales', tech: 'Tech' }
 
 export function Shell() {
   const { identity } = useAuth()
   if (identity?.kind !== 'staff') return null
-  return <ShellInner isOwner={identity.profile.role === 'owner'} name={identity.profile.name} />
+  return <ShellInner role={identity.profile.role} name={identity.profile.name} />
 }
 
-function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
+function ShellInner({ role, name }: { role: Role; name: string }) {
+  const isOwner = role === 'owner'
+  const isManager = role === 'owner' || role === 'sales'
   const { signOut } = useAuth()
   const navigate = useNavigate()
   const { key } = useReload()
-  const counts = useNavCounts(key, isOwner)
-  const items = NAV.filter((n) => !n.ownerOnly || isOwner)
+  const counts = useNavCounts(key, isManager)
+  const items = NAV.filter((n) => (!n.ownerOnly || isOwner) && (!n.managerOnly || isManager))
   const toast = useToast()
   const [pinOpen, setPinOpen] = useState(false)
 
@@ -123,7 +130,7 @@ function ShellInner({ isOwner, name }: { isOwner: boolean; name: string }) {
         >
           <div style={{ marginRight: 'auto', fontSize: 13 }}>
             <strong>{name}</strong>{' '}
-            <span style={{ opacity: 0.6 }}>{isOwner ? 'Owner' : 'Tech'}</span>
+            <span style={{ opacity: 0.6 }}>{ROLE_LABEL[role]}</span>
           </div>
           <Button variant="ghost" onClick={() => setPinOpen(true)}>
             Change password

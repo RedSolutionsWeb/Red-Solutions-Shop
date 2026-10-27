@@ -19,6 +19,7 @@ import { DealerOrderDetail } from './shop/DealerOrderDetail'
 import { Reports } from './shop/Reports'
 import { Users } from './shop/Users'
 import { RequireOwner } from './shop/RequireOwner'
+import { RequireManager } from './shop/RequireManager'
 import { DealerPortalApp } from './dealer-portal/DealerPortalApp'
 
 function Gate() {
@@ -46,33 +47,33 @@ function Gate() {
           <Route
             path="orders"
             element={
-              <RequireOwner>
+              <RequireManager>
                 <DealerOrders />
-              </RequireOwner>
+              </RequireManager>
             }
           />
           <Route
             path="orders/:id"
             element={
-              <RequireOwner>
+              <RequireManager>
                 <DealerOrderDetail />
-              </RequireOwner>
+              </RequireManager>
             }
           />
           <Route
             path="dealers"
             element={
-              <RequireOwner>
+              <RequireManager>
                 <Dealers />
-              </RequireOwner>
+              </RequireManager>
             }
           />
           <Route
             path="reports"
             element={
-              <RequireOwner>
+              <RequireManager>
                 <Reports />
-              </RequireOwner>
+              </RequireManager>
             }
           />
           <Route

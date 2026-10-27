@@ -23,7 +23,7 @@ const empty: NavCounts = {
 
 // Not live-subscribed — refetched by bumping `reloadKey` after a mutation
 // that would change a count (checking in a ticket, invoicing, etc).
-export function useNavCounts(reloadKey: number, isOwner: boolean) {
+export function useNavCounts(reloadKey: number, isManager: boolean) {
   const [counts, setCounts] = useState<NavCounts>(empty)
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function useNavCounts(reloadKey: number, isOwner: boolean) {
       ])
       let pendingOrders = 0
       let dealers = 0
-      if (isOwner) {
+      if (isManager) {
         const [ordersRes, dealersRes] = await Promise.all([
           supabase
             .from('orders')
@@ -66,7 +66,7 @@ export function useNavCounts(reloadKey: number, isOwner: boolean) {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reloadKey, isOwner])
+  }, [reloadKey, isManager])
 
   return counts
 }

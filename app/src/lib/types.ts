@@ -1,4 +1,4 @@
-export type Role = 'owner' | 'tech'
+export type Role = 'owner' | 'tech' | 'sales'
 export type Warranty = 'none' | 'warranty' | 'insurance'
 export type TicketStatus = 'intake' | 'diagnosis' | 'in_repair' | 'invoiced'
 export type OrderStatus = 'quote_requested' | 'submitted' | 'approved' | 'rejected' | 'invoiced'
