@@ -121,7 +121,7 @@ export function InvoiceDetail() {
       <div className="card elev-md" style={{ maxWidth: 800, margin: '16px auto', padding: 32 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <div>
-            <Logo height={28} />
+            <Logo height={56} />
             <p style={{ fontSize: 12 }}>
               Drone service &amp; repair
               <br />

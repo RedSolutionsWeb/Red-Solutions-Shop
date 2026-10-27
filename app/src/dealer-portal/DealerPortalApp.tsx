@@ -158,7 +158,7 @@ function DealerPortalInner({ dealerUser }: { dealerUser: DealerUser }) {
           gap: 16,
         }}
       >
-        <Logo height={28} />
+        <Logo height={48} />
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 16, fontSize: 13 }}>
           {account && (
             <span>
