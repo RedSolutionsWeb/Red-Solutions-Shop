@@ -170,6 +170,7 @@ export interface Invoice {
   total: number
   qbo_invoice_id: string | null
   qbo_link: string | null
+  voided_at: string | null
 }
 
 export interface InvoiceLine {

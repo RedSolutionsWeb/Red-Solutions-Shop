@@ -34,7 +34,7 @@ export function useNavCounts(reloadKey: number, isOwner: boolean) {
         supabase.from('parts_view').select('sku', { count: 'exact', head: true }),
         supabase.from('bundles').select('id', { count: 'exact', head: true }),
         supabase.from('customers').select('id', { count: 'exact', head: true }),
-        supabase.from('invoices').select('id', { count: 'exact', head: true }),
+        supabase.from('invoices').select('id', { count: 'exact', head: true }).is('voided_at', null),
       ])
       let pendingOrders = 0
       let dealers = 0

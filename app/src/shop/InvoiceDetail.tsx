@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../auth/AuthContext'
+import { useToast } from '../ui/Toast'
 import type { Customer, Dealer, Invoice, InvoiceLine, Order, Profile, Ticket } from '../lib/types'
 import { money } from '../lib/money'
 import { Button } from '../ui/Button'
@@ -13,6 +15,9 @@ import { Logo } from '../ui/Logo'
 export function InvoiceDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { identity } = useAuth()
+  const toast = useToast()
+  const isOwner = identity?.kind === 'staff' && identity.profile.role === 'owner'
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [lines, setLines] = useState<InvoiceLine[]>([])
   const [ticket, setTicket] = useState<Ticket | null>(null)
@@ -21,6 +26,8 @@ export function InvoiceDetail() {
   const [dealer, setDealer] = useState<Dealer | null>(null)
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [sendOpen, setSendOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   async function load() {
     if (!id) return
@@ -78,6 +85,19 @@ export function InvoiceDetail() {
     await supabase.from('invoices').update({ qbo_status: 'sent' }).eq('id', invoice.id)
     setInvoice({ ...invoice, qbo_status: 'sent' })
     setSendOpen(false)
+  }
+
+  async function deleteInvoice() {
+    if (!invoice) return
+    setDeleteError('')
+    const { error } = await supabase.rpc('void_invoice', { p_invoice_id: invoice.id })
+    if (error) {
+      setDeleteError(error.message)
+      return
+    }
+    setDeleteOpen(false)
+    toast(`${invoice.id} deleted`)
+    navigate('/invoices')
   }
 
   if (!invoice) return null
@@ -199,6 +219,11 @@ export function InvoiceDetail() {
           >
             {ticket ? 'Back to ticket' : 'Back to order'}
           </Button>
+          {isOwner && (
+            <Button variant="ghost" onClick={() => setDeleteOpen(true)}>
+              Delete invoice
+            </Button>
+          )}
           <div style={{ marginLeft: 'auto' }}>{statusTag}</div>
         </div>
 
@@ -227,6 +252,38 @@ export function InvoiceDetail() {
           Company file: RedSolutions LLC (connected). Lines post as products/services matching your inventory SKUs;
           labor posts to Service Income. Sales tax is included for billable jobs and left off warranty and insurance
           work.
+        </Dialog>
+      )}
+
+      {deleteOpen && (
+        <Dialog
+          title={`Delete ${invoice.id}?`}
+          onClose={() => setDeleteOpen(false)}
+          actions={
+            <>
+              <Button variant="secondary" onClick={() => setDeleteOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={deleteInvoice}>
+                Delete invoice
+              </Button>
+            </>
+          }
+        >
+          {invoice.qbo_invoice_id ? (
+            <p>
+              This invoice was already sent to QuickBooks. Deleting it here will <strong>not</strong> remove it
+              there — you'll need to delete or void it in QuickBooks separately, or it'll be left orphaned.
+            </p>
+          ) : (
+            <p>This invoice was never sent to QuickBooks, so it's safe to delete.</p>
+          )}
+          <p>
+            {ticket
+              ? 'The ticket goes back to "In Repair" so it can be re-invoiced.'
+              : 'The dealer order goes back to "Approved", its stock is restored, and the balance charge is reversed.'}
+          </p>
+          {deleteError && <div style={{ color: 'var(--color-accent)', fontSize: 12 }}>{deleteError}</div>}
         </Dialog>
       )}
     </div>
