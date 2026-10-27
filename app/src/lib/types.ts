@@ -101,6 +101,16 @@ export interface Ticket {
   notes: string | null
 }
 
+export interface TimeEntry {
+  id: number
+  ticket_id: string
+  tech_id: string
+  description: string
+  started_at: string
+  stopped_at: string | null
+  cancelled: boolean
+}
+
 export interface LaborLine {
   id: number
   ticket_id: string

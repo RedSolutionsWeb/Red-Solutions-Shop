@@ -1,14 +1,23 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../auth/AuthContext'
 import { useShopSettings } from '../lib/useShopSettings'
 import { useReload } from './ReloadContext'
 import { useToast } from '../ui/Toast'
 import { money } from '../lib/money'
 import { STAGES } from '../lib/types'
-import type { Customer, LaborLine, PartLine, PartView, Profile, Ticket, Warranty, BundlePricing } from '../lib/types'
+import type { Customer, LaborLine, PartLine, PartView, Profile, Ticket, TimeEntry, Warranty, BundlePricing } from '../lib/types'
 import { Button } from '../ui/Button'
 import { Field, Input, Select, Textarea } from '../ui/Field'
+
+function formatElapsed(ms: number) {
+  const total = Math.max(0, Math.floor(ms / 1000))
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
 
 const AIRCRAFT = [
   { key: '', label: 'All aircraft' },
@@ -22,10 +31,16 @@ export function TicketDetail() {
   const settings = useShopSettings()
   const { bump } = useReload()
   const toast = useToast()
+  const { identity } = useAuth()
+  const myId = identity?.kind === 'staff' ? identity.profile.id : null
 
   const [ticket, setTicket] = useState<Ticket | null>(null)
   const [customer, setCustomer] = useState<Customer | null>(null)
   const [labor, setLabor] = useState<LaborLine[]>([])
+  const [myTimer, setMyTimer] = useState<TimeEntry | null>(null)
+  const [ticketTimers, setTicketTimers] = useState<TimeEntry[]>([])
+  const [timerDesc, setTimerDesc] = useState('')
+  const [now, setNow] = useState(Date.now())
   const [partLines, setPartLines] = useState<PartLine[]>([])
   const [parts, setParts] = useState<PartView[]>([])
   const [bundles, setBundles] = useState<BundlePricing[]>([])
@@ -45,7 +60,7 @@ export function TicketDetail() {
 
   async function load() {
     if (!id) return
-    const [tRes, laborRes, linesRes, partsRes, bundlesRes, profilesRes, invRes] = await Promise.all([
+    const [tRes, laborRes, linesRes, partsRes, bundlesRes, profilesRes, invRes, ticketTimersRes, myTimerRes] = await Promise.all([
       supabase.from('tickets').select('*').eq('id', id).single(),
       supabase.from('labor_lines').select('*').eq('ticket_id', id).order('id'),
       supabase.from('part_lines').select('*').eq('ticket_id', id).order('id'),
@@ -53,6 +68,8 @@ export function TicketDetail() {
       supabase.from('bundle_pricing').select('*'),
       supabase.from('profiles').select('*'),
       supabase.from('invoices').select('id').eq('ticket_id', id).maybeSingle(),
+      supabase.from('time_entries').select('*').eq('ticket_id', id).is('stopped_at', null),
+      myId ? supabase.from('time_entries').select('*').eq('tech_id', myId).is('stopped_at', null).maybeSingle() : null,
     ])
     setTicket(tRes.data as Ticket)
     setLabor((laborRes.data as LaborLine[]) ?? [])
@@ -61,10 +78,47 @@ export function TicketDetail() {
     setBundles((bundlesRes.data as BundlePricing[]) ?? [])
     setTechs((profilesRes.data as Profile[]) ?? [])
     setInvoiceId((invRes.data as { id: string } | null)?.id ?? null)
+    setTicketTimers((ticketTimersRes.data as TimeEntry[]) ?? [])
+    setMyTimer((myTimerRes?.data as TimeEntry | null) ?? null)
     if (tRes.data?.customer_id) {
       const { data } = await supabase.from('customers').select('*').eq('id', tRes.data.customer_id).single()
       setCustomer(data as Customer)
     }
+  }
+
+  useEffect(() => {
+    if (!myTimer) return
+    const t = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(t)
+  }, [myTimer])
+
+  async function startTimer() {
+    if (!ticket) return
+    const { error } = await supabase.rpc('start_timer', { p_ticket_id: ticket.id, p_description: timerDesc || 'Labor' })
+    if (error) {
+      toast(error.message)
+      return
+    }
+    setTimerDesc('')
+    load()
+  }
+
+  async function stopTimer() {
+    if (!myTimer) return
+    const { data, error } = await supabase.rpc('stop_timer', { p_time_entry_id: myTimer.id })
+    if (error) {
+      toast(error.message)
+      return
+    }
+    toast(data ? 'Time logged to labor' : 'Timer discarded — too short to log')
+    load()
+  }
+
+  async function cancelTimer() {
+    if (!myTimer) return
+    await supabase.rpc('cancel_timer', { p_time_entry_id: myTimer.id })
+    toast('Timer discarded')
+    load()
   }
 
   useEffect(() => {
@@ -292,6 +346,52 @@ export function TicketDetail() {
 
       <div>
         <h5>Labor</h5>
+
+        <div style={{ marginBottom: 12 }}>
+          {myTimer && myTimer.ticket_id === ticket.id ? (
+            <div className="card" style={{ padding: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ fontFamily: 'var(--font-heading)', fontSize: 20, fontWeight: 800 }}>
+                {formatElapsed(now - new Date(myTimer.started_at).getTime())}
+              </div>
+              <span className="muted" style={{ fontSize: 12 }}>
+                running on this job — {myTimer.description}
+              </span>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+                <Button variant="ghost" onClick={cancelTimer}>
+                  Discard
+                </Button>
+                <Button variant="primary" onClick={stopTimer}>
+                  Stop &amp; log time
+                </Button>
+              </div>
+            </div>
+          ) : myTimer ? (
+            <div className="muted" style={{ fontSize: 12 }}>
+              You have a timer running on ticket {myTimer.ticket_id} — stop it before starting one here.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr auto', gap: 8 }}>
+              <Input
+                placeholder="What are you working on? (optional)"
+                value={timerDesc}
+                onChange={(e) => setTimerDesc(e.target.value)}
+              />
+              <Button variant="secondary" onClick={startTimer}>
+                Start timer
+              </Button>
+            </div>
+          )}
+          {ticketTimers.filter((t) => t.tech_id !== myId).length > 0 && (
+            <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>
+              Also on the clock:{' '}
+              {ticketTimers
+                .filter((t) => t.tech_id !== myId)
+                .map((t) => techs.find((p) => p.id === t.tech_id)?.name ?? 'someone')
+                .join(', ')}
+            </div>
+          )}
+        </div>
+
         <table className="table">
           <thead>
             <tr>
