@@ -1,22 +1,16 @@
-// Placeholder wordmark — the original logo-full.png / logo-full-white.png /
-// logo-gear.png assets lived only in the container that was reclaimed and
-// couldn't be reconstructed from conversation text (unlike the SQL/TSX
-// source, which could). Swap this for an <img> once the real files are
-// back; it's styled to sit in the same header slot at the same height.
+import logoIcon from '../assets/logo-icon.png'
+import logoRed from '../assets/logo-red.png'
+
 export function Logo({ variant = 'dark', height = 32 }: { variant?: 'dark' | 'light'; height?: number }) {
   const fg = variant === 'light' ? '#fff' : 'var(--color-text)'
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, height }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: height * 0.25, height }}>
+      <img src={logoIcon} alt="" style={{ height, width: height, flex: 'none', objectFit: 'contain' }} />
       <span
         style={{
-          width: height * 0.7,
-          height: height * 0.7,
-          background: 'var(--color-accent)',
-          flex: 'none',
-        }}
-      />
-      <span
-        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: height * 0.12,
           fontFamily: 'var(--font-heading)',
           fontWeight: 800,
           fontSize: height * 0.5,
@@ -25,7 +19,8 @@ export function Logo({ variant = 'dark', height = 32 }: { variant?: 'dark' | 'li
           lineHeight: 1,
         }}
       >
-        RED <span style={{ color: 'var(--color-accent)' }}>SOLUTIONS</span>
+        <img src={logoRed} alt="RED" style={{ height: height * 0.55, display: 'block' }} />
+        SOLUTIONS
       </span>
     </div>
   )
