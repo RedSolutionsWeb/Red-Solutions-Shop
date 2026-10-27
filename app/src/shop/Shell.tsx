@@ -17,8 +17,13 @@ interface NavItem {
   // "manager" = owner or sales (everything except user management / settings)
   managerOnly?: boolean
   ownerOnly?: boolean
+  // Dealer program isn't in use yet — nav hidden, routes/code untouched.
+  // Flip to true whenever a dealer account gets set up.
+  hidden?: boolean
   count?: (c: ReturnType<typeof useNavCounts>) => number | undefined
 }
+
+const DEALERS_ENABLED = false
 
 const NAV: NavItem[] = [
   { key: 'board', label: 'Job board', path: '/', count: (c) => c.openTickets },
@@ -31,9 +36,10 @@ const NAV: NavItem[] = [
     label: 'Dealer orders',
     path: '/orders',
     managerOnly: true,
+    hidden: !DEALERS_ENABLED,
     count: (c) => (c.pendingOrders > 0 ? c.pendingOrders : undefined),
   },
-  { key: 'dealers', label: 'Dealers', path: '/dealers', managerOnly: true, count: (c) => c.dealers },
+  { key: 'dealers', label: 'Dealers', path: '/dealers', managerOnly: true, hidden: !DEALERS_ENABLED, count: (c) => c.dealers },
   { key: 'invoices', label: 'Invoicing', path: '/invoices', count: (c) => c.invoices },
   { key: 'reports', label: 'Reports', path: '/reports', managerOnly: true },
   { key: 'users', label: 'Users', path: '/users', ownerOnly: true },
@@ -54,7 +60,7 @@ function ShellInner({ role, name }: { role: Role; name: string }) {
   const navigate = useNavigate()
   const { key } = useReload()
   const counts = useNavCounts(key, isManager)
-  const items = NAV.filter((n) => (!n.ownerOnly || isOwner) && (!n.managerOnly || isManager))
+  const items = NAV.filter((n) => !n.hidden && (!n.ownerOnly || isOwner) && (!n.managerOnly || isManager))
   const toast = useToast()
   const [pinOpen, setPinOpen] = useState(false)
 
