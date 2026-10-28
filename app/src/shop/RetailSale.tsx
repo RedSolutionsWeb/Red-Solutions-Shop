@@ -15,6 +15,12 @@ interface CartLine {
   qty: number
 }
 
+const AIRCRAFT = [
+  { key: '', label: 'All aircraft' },
+  { key: 'HD580', label: 'Vector HD580' },
+  { key: 'C31', label: 'Ceres Air C31' },
+]
+
 export function RetailSale() {
   const navigate = useNavigate()
   const { bump } = useReload()
@@ -27,6 +33,8 @@ export function RetailSale() {
   const [contact, setContact] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
+  const [aircraft, setAircraft] = useState('')
+  const [section, setSection] = useState('')
   const [skuText, setSkuText] = useState('')
   const [qtyText, setQtyText] = useState('1')
   const [taxExempt, setTaxExempt] = useState(false)
@@ -50,7 +58,19 @@ export function RetailSale() {
     }
   }
 
-  const sellableParts = useMemo(() => parts, [parts])
+  const sellableParts = useMemo(() => {
+    let list = parts
+    if (aircraft) list = list.filter((p) => p.fits.includes(aircraft) || p.fits.includes('All'))
+    if (section) list = list.filter((p) => p.category === section)
+    return list
+  }, [parts, aircraft, section])
+
+  const sections = useMemo(() => {
+    const scope = aircraft ? parts.filter((p) => p.fits.includes(aircraft) || p.fits.includes('All')) : parts
+    const cats = new Map<string, number>()
+    for (const p of scope) cats.set(p.category ?? '', (cats.get(p.category ?? '') ?? 0) + 1)
+    return Array.from(cats.entries())
+  }, [parts, aircraft])
 
   function resolveSku(text: string): PartView | null {
     const raw = text.trim()
@@ -205,6 +225,30 @@ export function RetailSale() {
         </div>
       )}
 
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
+        <Select
+          value={aircraft}
+          onChange={(e) => {
+            setAircraft(e.target.value)
+            setSection('')
+            setSkuText('')
+          }}
+        >
+          {AIRCRAFT.map((a) => (
+            <option key={a.key} value={a.key}>
+              {a.label}
+            </option>
+          ))}
+        </Select>
+        <Select value={section} onChange={(e) => setSection(e.target.value)}>
+          <option value="">All sections ({sellableParts.length})</option>
+          {sections.map(([cat, count]) => (
+            <option key={cat} value={cat}>
+              {cat} ({count})
+            </option>
+          ))}
+        </Select>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: 8, marginTop: 8 }}>
         <Input
           list="retail-part-lookup"
