@@ -42,6 +42,7 @@ const NAV: NavItem[] = [
   },
   { key: 'dealers', label: 'Dealers', path: '/dealers', managerOnly: true, hidden: !DEALERS_ENABLED, count: (c) => c.dealers },
   { key: 'invoices', label: 'Invoicing', path: '/invoices', count: (c) => c.invoices },
+  { key: 'counts', label: 'Inventory count', path: '/counts' },
   { key: 'reports', label: 'Reports', path: '/reports', managerOnly: true },
   { key: 'users', label: 'Users', path: '/users', ownerOnly: true },
 ]

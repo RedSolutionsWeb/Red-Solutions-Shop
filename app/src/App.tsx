@@ -14,6 +14,7 @@ import { Bundles } from './shop/Bundles'
 import { Customers } from './shop/Customers'
 import { Invoicing } from './shop/Invoicing'
 import { InvoiceDetail } from './shop/InvoiceDetail'
+import { InventoryCounts, InventoryCountDetail } from './shop/InventoryCount'
 import { Dealers } from './shop/Dealers'
 import { DealerOrders } from './shop/DealerOrders'
 import { DealerOrderDetail } from './shop/DealerOrderDetail'
@@ -46,6 +47,8 @@ function Gate() {
           <Route path="customers" element={<Customers />} />
           <Route path="invoices" element={<Invoicing />} />
           <Route path="invoices/:id" element={<InvoiceDetail />} />
+          <Route path="counts" element={<InventoryCounts />} />
+          <Route path="counts/:id" element={<InventoryCountDetail />} />
           <Route
             path="orders"
             element={

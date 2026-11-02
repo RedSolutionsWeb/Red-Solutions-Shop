@@ -52,10 +52,34 @@ export interface Part {
   qty_on_hand: number
   cost: number | null // owner-only, via parts_view
   price: number
+  qbo_qty_on_hand: number | null
+  qbo_qty_synced_at: string | null
 }
 
 export interface PartView extends Part {
   margin: number | null
+}
+
+export type InventoryCountStatus = 'open' | 'completed' | 'applied'
+
+export interface InventoryCount {
+  id: number
+  started_at: string
+  started_by: string | null
+  completed_at: string | null
+  applied_at: string | null
+  status: InventoryCountStatus
+}
+
+export interface InventoryCountLine {
+  id: number
+  count_id: number
+  sku: string
+  system_qty: number
+  qbo_qty: number | null
+  counted_qty: number
+  counted_at: string
+  counted_by: string | null
 }
 
 export interface Bundle {
