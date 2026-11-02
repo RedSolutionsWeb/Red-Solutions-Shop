@@ -125,7 +125,23 @@ export function Inventory() {
             return (
               <tr key={p.sku} style={{ cursor: 'pointer' }} onClick={() => setDrawerSku(p.sku)}>
                 <td>{p.sku}</td>
-                <td>{p.name}</td>
+                <td>
+                  {p.name}
+                  {p.pn_needs_review && (
+                    <span
+                      title={p.pn_review_note ?? 'This part number needs review'}
+                      style={{
+                        marginLeft: 6,
+                        fontSize: 10,
+                        color: 'var(--color-accent)',
+                        border: '1px solid var(--color-accent)',
+                        padding: '1px 4px',
+                      }}
+                    >
+                      review
+                    </span>
+                  )}
+                </td>
                 <td>{catCell}</td>
                 <td style={{ color: low ? 'var(--color-accent)' : undefined }}>
                   {p.category === 'Service' ? '—' : p.qty_on_hand}

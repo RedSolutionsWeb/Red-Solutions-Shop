@@ -54,6 +54,8 @@ export interface Part {
   price: number
   qbo_qty_on_hand: number | null
   qbo_qty_synced_at: string | null
+  pn_needs_review: boolean
+  pn_review_note: string | null
 }
 
 export interface PartView extends Part {
