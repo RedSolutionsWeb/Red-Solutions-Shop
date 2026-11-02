@@ -62,7 +62,7 @@ export interface PartView extends Part {
   margin: number | null
 }
 
-export type InventoryCountStatus = 'open' | 'completed' | 'applied'
+export type InventoryCountStatus = 'open' | 'completed' | 'applied' | 'cancelled'
 
 export interface InventoryCount {
   id: number
@@ -70,6 +70,7 @@ export interface InventoryCount {
   started_by: string | null
   completed_at: string | null
   applied_at: string | null
+  cancelled_at: string | null
   status: InventoryCountStatus
 }
 

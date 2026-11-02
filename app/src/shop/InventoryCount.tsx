@@ -7,6 +7,7 @@ import type { InventoryCount, InventoryCountLine, PartView, Profile } from '../l
 import { Button } from '../ui/Button'
 import { Select } from '../ui/Field'
 import { Tag } from '../ui/Tag'
+import { Dialog } from '../ui/Dialog'
 
 const AIRCRAFT = [
   { key: '', label: 'All aircraft' },
@@ -41,6 +42,8 @@ export function InventoryCounts() {
       <Tag variant="outline">In progress</Tag>
     ) : s === 'completed' ? (
       <Tag variant="accent">Needs review</Tag>
+    ) : s === 'cancelled' ? (
+      <Tag variant="outline">Cancelled</Tag>
     ) : (
       <Tag variant="neutral">Applied</Tag>
     )
@@ -99,6 +102,7 @@ export function InventoryCountDetail() {
   const [section, setSection] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [cancelOpen, setCancelOpen] = useState(false)
 
   async function load() {
     if (!id) return
@@ -160,6 +164,20 @@ export function InventoryCountDetail() {
     load()
   }
 
+  async function cancelCount() {
+    if (!id) return
+    setBusy(true)
+    const { error: err } = await supabase.rpc('cancel_inventory_count', { p_count_id: Number(id) })
+    setBusy(false)
+    setCancelOpen(false)
+    if (err) {
+      setError(err.message)
+      return
+    }
+    toast('Count cancelled')
+    navigate('/counts')
+  }
+
   async function applyCount() {
     if (!id) return
     setBusy(true)
@@ -174,6 +192,24 @@ export function InventoryCountDetail() {
   }
 
   if (!count) return null
+
+  if (count.status === 'cancelled') {
+    return (
+      <div>
+        <Button variant="ghost" onClick={() => navigate('/counts')}>
+          ← Inventory count
+        </Button>
+        <div className="card elev-md" style={{ marginTop: 16, padding: 24 }}>
+          <h3 style={{ margin: 0 }}>Count from {new Date(count.started_at).toLocaleDateString()}</h3>
+          <p className="muted" style={{ fontSize: 13 }}>
+            Cancelled {count.cancelled_at ? new Date(count.cancelled_at).toLocaleString() : ''}. Nothing was
+            applied to inventory. {lines.length} part{lines.length === 1 ? '' : 's'} had been counted before
+            this was cancelled.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   if (count.status !== 'open') {
     const uncounted = parts.length - lines.length
@@ -255,10 +291,36 @@ export function InventoryCountDetail() {
       </Button>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
         <h2 style={{ margin: 0 }}>Counting — {lines.length} of {parts.length} done</h2>
-        <Button variant="primary" onClick={finishCount} disabled={busy}>
-          Finish count
-        </Button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button variant="ghost" onClick={() => setCancelOpen(true)} disabled={busy}>
+            Cancel count
+          </Button>
+          <Button variant="primary" onClick={finishCount} disabled={busy}>
+            Finish count
+          </Button>
+        </div>
       </div>
+
+      {cancelOpen && (
+        <Dialog
+          title="Cancel this count?"
+          onClose={() => setCancelOpen(false)}
+          actions={
+            <>
+              <Button variant="secondary" onClick={() => setCancelOpen(false)}>
+                Keep counting
+              </Button>
+              <Button variant="primary" onClick={cancelCount} disabled={busy}>
+                Cancel count
+              </Button>
+            </>
+          }
+        >
+          {lines.length > 0
+            ? `${lines.length} part${lines.length === 1 ? '' : 's'} already counted will be discarded. Nothing has been applied to inventory, so this is safe.`
+            : 'Nothing has been counted yet, so this is safe.'}
+        </Dialog>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
         <Select value={aircraft} onChange={(e) => { setAircraft(e.target.value); setSection('') }}>
