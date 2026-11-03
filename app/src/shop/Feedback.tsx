@@ -10,7 +10,7 @@ import { Tag } from '../ui/Tag'
 export function Feedback() {
   const { identity } = useAuth()
   const toast = useToast()
-  const isManager = identity?.kind === 'staff' && (identity.profile.role === 'owner' || identity.profile.role === 'sales')
+  const isOwner = identity?.kind === 'staff' && identity.profile.role === 'owner'
 
   const [rows, setRows] = useState<FeedbackRow[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
@@ -79,37 +79,45 @@ export function Feedback() {
         </Button>
       </div>
 
-      <h3 style={{ marginTop: 32, marginBottom: 8 }}>Open ({open.length})</h3>
-      {open.length === 0 && <p className="muted">Nothing open.</p>}
-      {open.map((r) => (
-        <div key={r.id} className="card" style={{ padding: 16, marginBottom: 8 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <strong>{nameFor(r.reported_by)}</strong>
-            <span className="muted" style={{ fontSize: 12 }}>{new Date(r.created_at).toLocaleString()}</span>
-          </div>
-          <div style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{r.message}</div>
-          {isManager && (
-            <div style={{ marginTop: 10 }}>
-              <Button variant="secondary" onClick={() => resolve(r.id)}>
-                Mark resolved
-              </Button>
-            </div>
-          )}
-        </div>
-      ))}
+      {!isOwner && (
+        <p className="muted" style={{ marginTop: 32 }}>
+          This goes directly to Jackson — only he can see what's been reported.
+        </p>
+      )}
 
-      {resolved.length > 0 && (
+      {isOwner && (
         <>
-          <h3 style={{ marginTop: 32, marginBottom: 8 }}>Resolved ({resolved.length})</h3>
-          {resolved.map((r) => (
-            <div key={r.id} className="card" style={{ padding: 16, marginBottom: 8, opacity: 0.7 }}>
+          <h3 style={{ marginTop: 32, marginBottom: 8 }}>Open ({open.length})</h3>
+          {open.length === 0 && <p className="muted">Nothing open.</p>}
+          {open.map((r) => (
+            <div key={r.id} className="card" style={{ padding: 16, marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <strong>{nameFor(r.reported_by)}</strong>
-                <Tag variant="neutral">Resolved by {nameFor(r.resolved_by ?? '')}</Tag>
+                <span className="muted" style={{ fontSize: 12 }}>{new Date(r.created_at).toLocaleString()}</span>
               </div>
               <div style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{r.message}</div>
+              <div style={{ marginTop: 10 }}>
+                <Button variant="secondary" onClick={() => resolve(r.id)}>
+                  Mark resolved
+                </Button>
+              </div>
             </div>
           ))}
+
+          {resolved.length > 0 && (
+            <>
+              <h3 style={{ marginTop: 32, marginBottom: 8 }}>Resolved ({resolved.length})</h3>
+              {resolved.map((r) => (
+                <div key={r.id} className="card" style={{ padding: 16, marginBottom: 8, opacity: 0.7 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <strong>{nameFor(r.reported_by)}</strong>
+                    <Tag variant="neutral">Resolved by {nameFor(r.resolved_by ?? '')}</Tag>
+                  </div>
+                  <div style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{r.message}</div>
+                </div>
+              ))}
+            </>
+          )}
         </>
       )}
     </div>
