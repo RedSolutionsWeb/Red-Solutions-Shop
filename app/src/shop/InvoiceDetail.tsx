@@ -139,9 +139,14 @@ export function InvoiceDetail() {
 
   return (
     <div>
-      <Button variant="ghost" onClick={() => navigate('/invoices')}>
-        ← Invoicing
-      </Button>
+      <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Button variant="ghost" onClick={() => navigate('/invoices')}>
+          ← Invoicing
+        </Button>
+        <Button variant="secondary" onClick={() => window.print()}>
+          Print
+        </Button>
+      </div>
 
       <div className="card elev-md" style={{ maxWidth: 800, margin: '16px auto', padding: 32 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -170,6 +175,16 @@ export function InvoiceDetail() {
             </div>
           </div>
         </div>
+
+        {ticket && (ticket.make || ticket.model || ticket.serial) && (
+          <div style={{ marginTop: 12 }}>
+            <div className="kicker">Drone</div>
+            <div>
+              {[ticket.make, ticket.model].filter(Boolean).join(' ') || '—'}
+              {ticket.serial ? ` — S/N ${ticket.serial}` : ''}
+            </div>
+          </div>
+        )}
 
         <div style={{ marginTop: 12 }}>
           <Select value={invoice.rep ?? ''} onChange={(e) => setRep(e.target.value)} style={{ maxWidth: 240 }}>
@@ -225,7 +240,7 @@ export function InvoiceDetail() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, marginTop: 20, alignItems: 'center' }}>
+        <div className="no-print" style={{ display: 'flex', gap: 8, marginTop: 20, alignItems: 'center' }}>
           {invoice.qbo_link ? (
             <Button variant="primary" onClick={() => window.open(invoice.qbo_link!, '_blank')}>
               View in QuickBooks
@@ -254,7 +269,7 @@ export function InvoiceDetail() {
           <div style={{ marginLeft: 'auto' }}>{statusTag}</div>
         </div>
 
-        <p className="muted" style={{ fontSize: 11, marginTop: 16 }}>
+        <p className="muted no-print" style={{ fontSize: 11, marginTop: 16 }}>
           The CSV matches QuickBooks Online's invoice import columns, so it drops straight into Settings → Import
           data → Invoices. Item names match your inventory SKUs, so QBO maps them to products/services on first
           import.

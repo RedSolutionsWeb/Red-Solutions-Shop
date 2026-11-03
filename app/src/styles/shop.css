@@ -27,3 +27,9 @@ button { font-family: inherit; }
 }
 
 .muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  .card.elev-md { box-shadow: none !important; margin: 0 !important; max-width: none !important; }
+}
