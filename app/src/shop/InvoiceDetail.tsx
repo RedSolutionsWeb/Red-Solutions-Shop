@@ -25,6 +25,7 @@ export function InvoiceDetail() {
   const [customer, setCustomer] = useState<Customer | null>(null)
   const [dealer, setDealer] = useState<Dealer | null>(null)
   const [profiles, setProfiles] = useState<Profile[]>([])
+  const [qboItemNames, setQboItemNames] = useState<Record<string, string>>({})
   const [sendOpen, setSendOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteError, setDeleteError] = useState('')
@@ -34,9 +35,20 @@ export function InvoiceDetail() {
     const { data: inv } = await supabase.from('invoices').select('*').eq('id', id).single()
     setInvoice(inv as Invoice)
     const { data: ls } = await supabase.from('invoice_lines').select('*').eq('invoice_id', id).order('id')
-    setLines((ls as InvoiceLine[]) ?? [])
+    const invoiceLines = (ls as InvoiceLine[]) ?? []
+    setLines(invoiceLines)
     const { data: profs } = await supabase.from('profiles').select('*')
     setProfiles((profs as Profile[]) ?? [])
+
+    const skus = [...new Set(invoiceLines.map((l) => l.sku).filter((s): s is string => !!s))]
+    if (skus.length) {
+      const { data: parts } = await supabase.from('parts').select('sku, qbo_item_name').in('sku', skus)
+      const names: Record<string, string> = {}
+      for (const p of parts ?? []) {
+        if (p.qbo_item_name) names[p.sku] = p.qbo_item_name.split(':').pop()!.trim()
+      }
+      setQboItemNames(names)
+    }
 
     if (inv?.ticket_id) {
       const { data: t } = await supabase.from('tickets').select('*').eq('id', inv.ticket_id).single()
@@ -72,7 +84,16 @@ export function InvoiceDetail() {
   }
 
   function ctx() {
-    return { invoice: invoice!, lines, customer, ticket, order, dealer, rep: profiles.find((p) => p.id === invoice?.rep) ?? null }
+    return {
+      invoice: invoice!,
+      lines,
+      customer,
+      ticket,
+      order,
+      dealer,
+      rep: profiles.find((p) => p.id === invoice?.rep) ?? null,
+      qboItemNames,
+    }
   }
 
   async function downloadInvoiceCsv() {

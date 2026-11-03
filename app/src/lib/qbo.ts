@@ -13,6 +13,11 @@ export interface QboContext {
   order?: Order | null
   dealer?: Dealer | null
   rep?: Profile | null
+  // sku -> the part's real QuickBooks item name (leaf, no category path).
+  // When a line's sku resolves here, this is used for Item(Product/Service)
+  // instead of the line's free-text description, so the CSV import matches
+  // the existing QBO item instead of creating a duplicate.
+  qboItemNames?: Record<string, string>
 }
 
 export function invoiceMemo(ctx: QboContext): string {
@@ -54,20 +59,24 @@ export function invoiceToQboRows(ctx: QboContext): string[][] {
   // re-guessing from ticket/order presence.
   const taxable = ctx.invoice.tax_exempt ? 'N' : 'Y'
 
-  return ctx.lines.map((line) => [
-    ctx.invoice.id,
-    customerName,
-    ctx.invoice.date,
-    ctx.invoice.due_date ?? '',
-    ctx.invoice.terms,
-    memo,
-    line.kind === 'labor' ? 'Labor' : line.description,
-    line.description,
-    String(line.qty),
-    line.unit_price.toFixed(2),
-    line.amount.toFixed(2),
-    taxable,
-  ])
+  return ctx.lines.map((line) => {
+    const qboName = line.sku ? ctx.qboItemNames?.[line.sku] : undefined
+    const item = line.kind === 'labor' ? 'Labor' : qboName ?? line.description
+    return [
+      ctx.invoice.id,
+      customerName,
+      ctx.invoice.date,
+      ctx.invoice.due_date ?? '',
+      ctx.invoice.terms,
+      memo,
+      item,
+      line.description,
+      String(line.qty),
+      line.unit_price.toFixed(2),
+      line.amount.toFixed(2),
+      taxable,
+    ]
+  })
 }
 
 export function toCsv(rows: string[][]): string {
