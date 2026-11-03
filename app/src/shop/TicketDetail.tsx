@@ -349,6 +349,13 @@ export function TicketDetail() {
           <Field label="Serial no.">
             <Input defaultValue={ticket.serial ?? ''} onBlur={(e) => saveTicket({ serial: e.target.value })} />
           </Field>
+          {ticket.serial && (
+            <div style={{ gridColumn: '1 / -1', marginTop: -8 }}>
+              <Button variant="ghost" onClick={() => navigate(`/drones?serial=${encodeURIComponent(ticket.serial!)}`)}>
+                View full service history for this S/N
+              </Button>
+            </div>
+          )}
           <Field label="Tech assigned">
             <Select value={ticket.tech_id ?? ''} onChange={(e) => saveTicket({ tech_id: e.target.value || null })}>
               <option value="">—</option>

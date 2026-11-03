@@ -12,6 +12,7 @@ import { TicketDetail } from './shop/TicketDetail'
 import { Inventory } from './shop/Inventory'
 import { Bundles } from './shop/Bundles'
 import { Customers } from './shop/Customers'
+import { DroneHistory } from './shop/DroneHistory'
 import { Invoicing } from './shop/Invoicing'
 import { InvoiceDetail } from './shop/InvoiceDetail'
 import { InventoryCounts, InventoryCountDetail } from './shop/InventoryCount'
@@ -45,6 +46,7 @@ function Gate() {
           <Route path="inventory" element={<Inventory />} />
           <Route path="bundles" element={<Bundles />} />
           <Route path="customers" element={<Customers />} />
+          <Route path="drones" element={<DroneHistory />} />
           <Route path="invoices" element={<Invoicing />} />
           <Route path="invoices/:id" element={<InvoiceDetail />} />
           <Route path="counts" element={<InventoryCounts />} />

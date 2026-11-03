@@ -32,6 +32,7 @@ const NAV: NavItem[] = [
   { key: 'inventory', label: 'Inventory', path: '/inventory', count: (c) => c.parts },
   { key: 'bundles', label: 'Bundles', path: '/bundles', count: (c) => c.bundles },
   { key: 'customers', label: 'Customers', path: '/customers', count: (c) => c.customers },
+  { key: 'drones', label: 'Drone history', path: '/drones' },
   {
     key: 'orders',
     label: 'Dealer orders',
