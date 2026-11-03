@@ -31,5 +31,7 @@ button { font-family: inherit; }
 @media print {
   .no-print { display: none !important; }
   body { background: #fff; }
+  .app-shell { display: block; }
+  .app-shell main { padding: 0; }
   .card.elev-md { box-shadow: none !important; margin: 0 !important; max-width: none !important; }
 }

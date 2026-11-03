@@ -69,6 +69,7 @@ function ShellInner({ role, name }: { role: Role; name: string }) {
   return (
     <div className="app-shell">
       <aside
+        className="no-print"
         style={{
           borderRight: '2px solid var(--color-divider)',
           padding: '20px 16px',
@@ -126,6 +127,7 @@ function ShellInner({ role, name }: { role: Role; name: string }) {
 
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <header
+          className="no-print"
           style={{
             display: 'flex',
             flexWrap: 'wrap',
