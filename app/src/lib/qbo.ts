@@ -61,7 +61,10 @@ export function invoiceToQboRows(ctx: QboContext): string[][] {
 
   return ctx.lines.map((line) => {
     const qboName = line.sku ? ctx.qboItemNames?.[line.sku] : undefined
-    const item = line.kind === 'labor' ? 'Labor' : qboName ?? line.description
+    // "Service Labor" is the shop's real QuickBooks labor item name —
+    // a plain "Labor" doesn't match anything in QBO's catalog and would
+    // import as a brand-new duplicate item.
+    const item = line.kind === 'labor' ? 'Service Labor' : qboName ?? line.description
     return [
       ctx.invoice.id,
       customerName,
