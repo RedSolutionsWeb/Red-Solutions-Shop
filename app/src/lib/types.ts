@@ -25,6 +25,8 @@ export interface Feedback {
   id: number
   reported_by: string
   message: string
+  expected: string | null
+  page_path: string | null
   status: FeedbackStatus
   created_at: string
   resolved_at: string | null

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import type { Role } from '../lib/types'
 import { useReload } from './ReloadContext'
@@ -64,8 +64,18 @@ function ShellInner({ role, name }: { role: Role; name: string }) {
   const isManager = role === 'owner' || role === 'sales'
   const { signOut } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const { key } = useReload()
   const counts = useNavCounts(key, isManager)
+
+  // Remember the last page visited (other than this feedback form itself)
+  // so "Report a problem" can tell what page the issue actually happened
+  // on, instead of just "/feedback".
+  useEffect(() => {
+    if (location.pathname !== '/feedback') {
+      sessionStorage.setItem('rs_last_path', location.pathname + location.search)
+    }
+  }, [location])
   const items = NAV.filter((n) => !n.hidden && (!n.ownerOnly || isOwner) && (!n.managerOnly || isManager))
   const toast = useToast()
   const [pinOpen, setPinOpen] = useState(false)
