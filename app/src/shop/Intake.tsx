@@ -6,6 +6,7 @@ import { useToast } from '../ui/Toast'
 import type { Customer, Profile, Warranty } from '../lib/types'
 import { Field, Input, Select, Textarea } from '../ui/Field'
 import { Button } from '../ui/Button'
+import { DRONE_MAKES, DRONE_MODELS } from '../lib/droneOptions'
 
 export function Intake() {
   const navigate = useNavigate()
@@ -142,10 +143,24 @@ export function Intake() {
           <h5 style={{ margin: 0 }}>Aircraft</h5>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <Field label="Make">
-              <Input value={make} onChange={(e) => setMake(e.target.value)} />
+              <Select value={make} onChange={(e) => setMake(e.target.value)}>
+                <option value="">—</option>
+                {DRONE_MAKES.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </Select>
             </Field>
             <Field label="Model">
-              <Input value={model} onChange={(e) => setModel(e.target.value)} />
+              <Select value={model} onChange={(e) => setModel(e.target.value)}>
+                <option value="">—</option>
+                {DRONE_MODELS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </Select>
             </Field>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>

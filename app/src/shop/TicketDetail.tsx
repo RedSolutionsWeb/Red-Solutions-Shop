@@ -11,6 +11,7 @@ import type { Customer, LaborLine, PartLine, PartView, Profile, Ticket, TimeEntr
 import { Button } from '../ui/Button'
 import { Field, Input, Select, Textarea } from '../ui/Field'
 import { Dialog } from '../ui/Dialog'
+import { DRONE_MAKES, DRONE_MODELS } from '../lib/droneOptions'
 
 function formatElapsed(ms: number) {
   const total = Math.max(0, Math.floor(ms / 1000))
@@ -341,10 +342,24 @@ export function TicketDetail() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
           <Field label="Make">
-            <Input defaultValue={ticket.make ?? ''} onBlur={(e) => saveTicket({ make: e.target.value })} />
+            <Select value={ticket.make ?? ''} onChange={(e) => saveTicket({ make: e.target.value })}>
+              <option value="">—</option>
+              {DRONE_MAKES.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </Select>
           </Field>
           <Field label="Model">
-            <Input defaultValue={ticket.model ?? ''} onBlur={(e) => saveTicket({ model: e.target.value })} />
+            <Select value={ticket.model ?? ''} onChange={(e) => saveTicket({ model: e.target.value })}>
+              <option value="">—</option>
+              {DRONE_MODELS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </Select>
           </Field>
           <Field label="Nickname">
             <Input defaultValue={ticket.nickname ?? ''} onBlur={(e) => saveTicket({ nickname: e.target.value })} />
