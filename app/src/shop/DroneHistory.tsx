@@ -114,6 +114,7 @@ export function DroneHistory() {
   }, [])
 
   const drone = events[0]?.ticket
+  const latestNickname = [...events].reverse().find((e) => e.ticket.nickname)?.ticket.nickname
   const totalBilled = events.reduce((s, e) => s + (e.invoice?.total ?? 0), 0)
 
   return (
@@ -170,7 +171,10 @@ export function DroneHistory() {
             </div>
             <div style={{ textAlign: 'right' }}>
               <div className="kicker">Service history</div>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{[drone?.make, drone?.model].filter(Boolean).join(' ') || '—'}</div>
+              <div style={{ fontSize: 22, fontWeight: 800 }}>
+                {[drone?.make, drone?.model].filter(Boolean).join(' ') || '—'}
+                {latestNickname ? ` "${latestNickname}"` : ''}
+              </div>
               <div className="muted" style={{ fontSize: 12 }}>S/N {drone?.serial}</div>
             </div>
           </div>

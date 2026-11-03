@@ -132,6 +132,7 @@ export interface Ticket {
   customer_id: number | null
   make: string | null
   model: string | null
+  nickname: string | null
   serial: string | null
   issue: string | null
   tech_id: string | null

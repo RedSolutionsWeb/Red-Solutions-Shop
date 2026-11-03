@@ -21,6 +21,7 @@ export function Intake() {
   const [email, setEmail] = useState('')
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
+  const [nickname, setNickname] = useState('')
   const [serial, setSerial] = useState('')
   const [techId, setTechId] = useState('')
   const [warranty, setWarranty] = useState<Warranty>('none')
@@ -81,6 +82,7 @@ export function Intake() {
           customer_id: custId,
           make,
           model,
+          nickname,
           serial,
           issue,
           tech_id: techId || null,
@@ -146,9 +148,14 @@ export function Intake() {
               <Input value={model} onChange={(e) => setModel(e.target.value)} />
             </Field>
           </div>
-          <Field label="Serial number">
-            <Input value={serial} onChange={(e) => setSerial(e.target.value)} />
-          </Field>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Field label="Drone nickname">
+              <Input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="e.g. Big Red" />
+            </Field>
+            <Field label="Serial number">
+              <Input value={serial} onChange={(e) => setSerial(e.target.value)} />
+            </Field>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <Field label="Tech assigned">
               <Select value={techId} onChange={(e) => setTechId(e.target.value)}>

@@ -339,12 +339,15 @@ export function TicketDetail() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
           <Field label="Make">
             <Input defaultValue={ticket.make ?? ''} onBlur={(e) => saveTicket({ make: e.target.value })} />
           </Field>
           <Field label="Model">
             <Input defaultValue={ticket.model ?? ''} onBlur={(e) => saveTicket({ model: e.target.value })} />
+          </Field>
+          <Field label="Nickname">
+            <Input defaultValue={ticket.nickname ?? ''} onBlur={(e) => saveTicket({ nickname: e.target.value })} />
           </Field>
           <Field label="Serial no.">
             <Input defaultValue={ticket.serial ?? ''} onBlur={(e) => saveTicket({ serial: e.target.value })} />

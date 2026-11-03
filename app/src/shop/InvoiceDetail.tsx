@@ -176,11 +176,12 @@ export function InvoiceDetail() {
           </div>
         </div>
 
-        {ticket && (ticket.make || ticket.model || ticket.serial) && (
+        {ticket && (ticket.make || ticket.model || ticket.nickname || ticket.serial) && (
           <div style={{ marginTop: 12 }}>
             <div className="kicker">Drone</div>
             <div>
               {[ticket.make, ticket.model].filter(Boolean).join(' ') || '—'}
+              {ticket.nickname ? ` "${ticket.nickname}"` : ''}
               {ticket.serial ? ` — S/N ${ticket.serial}` : ''}
             </div>
           </div>
