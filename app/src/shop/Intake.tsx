@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { useShopSettings } from '../lib/useShopSettings'
 import { useReload } from './ReloadContext'
 import { useToast } from '../ui/Toast'
 import type { Customer, Profile, Warranty } from '../lib/types'
 import { Field, Input, Select, Textarea } from '../ui/Field'
 import { Button } from '../ui/Button'
-import { money } from '../lib/money'
 
 export function Intake() {
   const navigate = useNavigate()
-  const settings = useShopSettings()
   const { bump } = useReload()
   const toast = useToast()
 
@@ -28,7 +25,6 @@ export function Intake() {
   const [techId, setTechId] = useState('')
   const [warranty, setWarranty] = useState<Warranty>('none')
   const [issue, setIssue] = useState('')
-  const [addDiagnostic, setAddDiagnostic] = useState(true)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -94,12 +90,6 @@ export function Intake() {
         .single()
       if (tErr) throw tErr
 
-      if (addDiagnostic) {
-        await supabase
-          .from('labor_lines')
-          .insert({ ticket_id: ticket.id, description: 'Diagnostic', hours: 1, rate: settings.labor_rate })
-      }
-
       toast(`Ticket ${ticket.id} checked in`)
       bump()
       navigate(`/tickets/${ticket.id}`)
@@ -114,7 +104,7 @@ export function Intake() {
     <div style={{ maxWidth: 960 }}>
       <h2 style={{ margin: 0 }}>Check in an aircraft</h2>
       <p className="muted" style={{ marginTop: 4 }}>
-        Creates a repair ticket and, optionally, an hour of diagnostic labor
+        Creates a repair ticket
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 20 }}>
@@ -185,12 +175,6 @@ export function Intake() {
       </div>
 
       <hr className="hr" />
-
-      <label className="radio" style={{ marginBottom: 16 }}>
-        <input type="checkbox" checked={addDiagnostic} onChange={(e) => setAddDiagnostic(e.target.checked)} />
-        <span className="dot" />
-        Add 1 hr diagnostic labor ({money(settings.labor_rate)}/hr)
-      </label>
 
       <div style={{ display: 'flex', gap: 8 }}>
         <Button variant="secondary" onClick={() => navigate('/')}>

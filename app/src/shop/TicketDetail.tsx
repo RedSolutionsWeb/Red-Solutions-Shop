@@ -58,8 +58,16 @@ export function TicketDetail() {
   const [bundleQty, setBundleQty] = useState('1')
   const [laborDesc, setLaborDesc] = useState('')
   const [laborHours, setLaborHours] = useState('')
-  const [laborRate, setLaborRate] = useState('')
+  const [laborRate, setLaborRate] = useState(String(settings.labor_rate))
+  const [rateTouched, setRateTouched] = useState(false)
   const [flash, setFlash] = useState('')
+
+  // Keep the rate field pre-filled with the shop's labor rate until the
+  // user actually edits it (settings load async, so this also covers the
+  // rate arriving after the field's already rendered with the fallback).
+  useEffect(() => {
+    if (!rateTouched) setLaborRate(String(settings.labor_rate))
+  }, [settings.labor_rate, rateTouched])
 
   async function load() {
     if (!id) return
@@ -177,7 +185,8 @@ export function TicketDetail() {
     await supabase.from('labor_lines').insert({ ticket_id: ticket.id, description: laborDesc, hours, rate })
     setLaborDesc('')
     setLaborHours('')
-    setLaborRate('')
+    setLaborRate(String(settings.labor_rate))
+    setRateTouched(false)
     load()
   }
 
@@ -451,7 +460,14 @@ export function TicketDetail() {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: 8, marginTop: 8 }}>
           <Input placeholder="Replace front left arm assembly" value={laborDesc} onChange={(e) => setLaborDesc(e.target.value)} />
           <Input placeholder="Hrs" value={laborHours} onChange={(e) => setLaborHours(e.target.value)} />
-          <Input placeholder="Rate" value={laborRate} onChange={(e) => setLaborRate(e.target.value)} />
+          <Input
+            placeholder="Rate"
+            value={laborRate}
+            onChange={(e) => {
+              setRateTouched(true)
+              setLaborRate(e.target.value)
+            }}
+          />
           <Button variant="secondary" onClick={addLabor}>
             Add
           </Button>
