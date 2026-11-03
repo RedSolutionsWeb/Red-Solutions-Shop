@@ -24,13 +24,15 @@ interface NavItem {
 }
 
 const DEALERS_ENABLED = false
+// Bundles aren't in use yet — nav hidden, routes/code untouched.
+const BUNDLES_ENABLED = false
 
 const NAV: NavItem[] = [
   { key: 'board', label: 'Job board', path: '/', count: (c) => c.openTickets },
   { key: 'intake', label: 'New intake', path: '/intake' },
   { key: 'sale', label: 'Parts sale', path: '/sale' },
   { key: 'inventory', label: 'Inventory', path: '/inventory', count: (c) => c.parts },
-  { key: 'bundles', label: 'Bundles', path: '/bundles', count: (c) => c.bundles },
+  { key: 'bundles', label: 'Bundles', path: '/bundles', hidden: !BUNDLES_ENABLED, count: (c) => c.bundles },
   { key: 'customers', label: 'Customers', path: '/customers', count: (c) => c.customers },
   { key: 'drones', label: 'Drone history', path: '/drones' },
   {
