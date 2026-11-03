@@ -35,6 +35,7 @@ const NAV: NavItem[] = [
   { key: 'bundles', label: 'Bundles', path: '/bundles', hidden: !BUNDLES_ENABLED, count: (c) => c.bundles },
   { key: 'customers', label: 'Customers', path: '/customers', count: (c) => c.customers },
   { key: 'drones', label: 'Drone history', path: '/drones' },
+  { key: 'feedback', label: 'Report a problem', path: '/feedback', count: (c) => (c.openFeedback > 0 ? c.openFeedback : undefined) },
   {
     key: 'orders',
     label: 'Dealer orders',

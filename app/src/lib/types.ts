@@ -19,6 +19,18 @@ export interface Profile {
   must_change_password: boolean
 }
 
+export type FeedbackStatus = 'open' | 'resolved'
+
+export interface Feedback {
+  id: number
+  reported_by: string
+  message: string
+  status: FeedbackStatus
+  created_at: string
+  resolved_at: string | null
+  resolved_by: string | null
+}
+
 export interface DealerUser {
   id: string
   dealer_id: number
