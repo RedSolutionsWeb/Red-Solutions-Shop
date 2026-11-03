@@ -51,15 +51,39 @@ export function Invoicing() {
 
   async function exportAllUnsent() {
     const drafts = invoices.filter((i) => i.qbo_status === 'draft')
-    const rows: string[][] = []
+
+    const linesByInvoice: Record<string, InvoiceLine[]> = {}
+    const skus = new Set<string>()
     for (const inv of drafts) {
       const { data: lines } = await supabase.from('invoice_lines').select('*').eq('invoice_id', inv.id)
+      const ls = (lines as InvoiceLine[]) ?? []
+      linesByInvoice[inv.id] = ls
+      for (const l of ls) if (l.sku) skus.add(l.sku)
+    }
+
+    // Same fix as the single-invoice download in InvoiceDetail.tsx: resolve
+    // each line's real QuickBooks item name so the CSV matches existing QBO
+    // items instead of creating duplicates.
+    const qboItemNames: Record<string, string> = {}
+    if (skus.size) {
+      const { data: parts } = await supabase.from('parts').select('sku, qbo_item_name').in('sku', [...skus])
+      for (const p of parts ?? []) {
+        if (p.qbo_item_name) qboItemNames[p.sku] = p.qbo_item_name.split(':').pop()!.trim()
+      }
+    }
+
+    const rows: string[][] = []
+    for (const inv of drafts) {
       const ticket = inv.ticket_id ? tickets[inv.ticket_id] : null
       const order = inv.order_id ? orders[inv.order_id] : null
-      const customer = ticket?.customer_id ? customers[ticket.customer_id] : null
+      const customer = ticket?.customer_id
+        ? customers[ticket.customer_id]
+        : inv.customer_id
+          ? customers[inv.customer_id]
+          : null
       const dealer = order ? dealers[order.dealer_id] : null
       const rep = inv.rep ? profiles[inv.rep] : null
-      rows.push(...invoiceToQboRows({ invoice: inv, lines: (lines as InvoiceLine[]) ?? [], customer, ticket, order, dealer, rep }))
+      rows.push(...invoiceToQboRows({ invoice: inv, lines: linesByInvoice[inv.id], customer, ticket, order, dealer, rep, qboItemNames }))
     }
     downloadCsv(`redsolutions-invoices-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows))
     await supabase
