@@ -24,6 +24,13 @@ export function invoiceMemo(ctx: QboContext): string {
   let memo = ''
   if (ctx.ticket) {
     memo = `${[ctx.ticket.make, ctx.ticket.model].filter(Boolean).join(' ')} S/N ${ctx.ticket.serial ?? ''} — ticket ${ctx.ticket.id}`
+    // Customer is still billed up front; the shop turns this in to the
+    // manufacturer/insurer afterward and gets a credit memo back. Flag it
+    // in the memo so it isn't mistaken for an ordinary tax-exempt sale —
+    // a CSV cell can't carry bold, so **asterisks** mark it for whoever
+    // bolds it by hand once the invoice is in QuickBooks.
+    if (ctx.ticket.warranty === 'warranty') memo = `**Turn in to Warranty** — ${memo}`
+    else if (ctx.ticket.warranty === 'insurance') memo = `**Turn in to Insurance** — ${memo}`
   } else if (ctx.order) {
     const po = ctx.order.po ? ` — PO ${ctx.order.po}` : ''
     memo = `Dealer order ${ctx.order.id}${po} — ${ctx.order.ship_method ?? ''}`
