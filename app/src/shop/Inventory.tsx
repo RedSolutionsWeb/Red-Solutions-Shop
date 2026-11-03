@@ -192,6 +192,7 @@ export function Inventory() {
       )}
       {csvOpen && (
         <CsvUploadDialog
+          isManager={isManager}
           onClose={() => setCsvOpen(false)}
           onDone={(msg) => {
             setCsvOpen(false)
@@ -446,7 +447,15 @@ function PartDrawer({
   )
 }
 
-function CsvUploadDialog({ onClose, onDone }: { onClose: () => void; onDone: (msg: string) => void }) {
+function CsvUploadDialog({
+  isManager,
+  onClose,
+  onDone,
+}: {
+  isManager: boolean
+  onClose: () => void
+  onDone: (msg: string) => void
+}) {
   const [text, setText] = useState('')
 
   async function importCsv() {
@@ -463,19 +472,28 @@ function CsvUploadDialog({ onClose, onDone }: { onClose: () => void; onDone: (ms
         continue
       }
       const { data: exists } = await supabase.from('parts').select('sku').eq('sku', sku).maybeSingle()
-      const row = {
-        sku,
-        name: name || sku,
-        category: category || null,
-        qty_on_hand: Number(qty) || 0,
-        cost: Number(cost) || 0,
-        price: Number(price) || 0,
-      }
       if (exists) {
-        await supabase.from('parts').update(row).eq('sku', sku)
+        // Only touch fields the row actually provided -- a CSV re-upload
+        // with a blank/missing column (e.g. a vendor price list with no
+        // real qty data) must not wipe out what's already there. Cost
+        // stays manager-only, same as everywhere else in this page.
+        const patch: Record<string, unknown> = {}
+        if (name) patch.name = name
+        if (category) patch.category = category
+        if (qty !== undefined && qty !== '') patch.qty_on_hand = Number(qty) || 0
+        if (isManager && cost !== undefined && cost !== '') patch.cost = Number(cost) || 0
+        if (price !== undefined && price !== '') patch.price = Number(price) || 0
+        if (Object.keys(patch).length) await supabase.from('parts').update(patch).eq('sku', sku)
         updated++
       } else {
-        await supabase.from('parts').insert(row)
+        await supabase.from('parts').insert({
+          sku,
+          name: name || sku,
+          category: category || null,
+          qty_on_hand: Number(qty) || 0,
+          cost: isManager ? Number(cost) || 0 : 0,
+          price: Number(price) || 0,
+        })
         added++
       }
     }
@@ -499,7 +517,8 @@ function CsvUploadDialog({ onClose, onDone }: { onClose: () => void; onDone: (ms
     >
       <p>
         Upload or paste a CSV with the columns <strong>sku, name, category, qty, cost, price</strong>. Existing SKUs
-        are updated, new ones are added.
+        are updated, new ones are added. A blank column on an existing SKU leaves that field as-is — it won't be
+        zeroed out.{!isManager && ' Cost is manager-only and is ignored on this upload.'}
       </p>
       <input
         type="file"

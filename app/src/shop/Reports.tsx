@@ -34,7 +34,8 @@ export function Reports() {
 
   const billedAllTime = invoices.reduce((s, i) => s + i.total, 0)
   const ticketInvoices = invoices.filter((i) => i.ticket_id)
-  const avgTicket = ticketInvoices.length ? billedAllTime / ticketInvoices.length : 0
+  const ticketBilled = ticketInvoices.reduce((s, i) => s + i.total, 0)
+  const avgTicket = ticketInvoices.length ? ticketBilled / ticketInvoices.length : 0
   const laborHours = labor.reduce((s, l) => s + Number(l.hours), 0)
   const partsRevenue = partLines.reduce((s, p) => s + p.qty * p.price, 0)
 
