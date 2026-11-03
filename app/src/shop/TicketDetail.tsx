@@ -197,15 +197,20 @@ export function TicketDetail() {
   }
 
   function resolveSku(text: string): PartView | null {
+    // Always search the full catalog here, not scopedParts -- the
+    // aircraft/section selectors are just a browsing aid for the
+    // suggestion list below, and shouldn't make an exact SKU or an
+    // unambiguous name search silently find nothing just because a
+    // filter was left on from earlier.
     const raw = text.trim()
     if (!raw) return null
-    const exact = scopedParts.find((p) => p.sku.toLowerCase() === raw.toLowerCase())
+    const exact = parts.find((p) => p.sku.toLowerCase() === raw.toLowerCase())
     if (exact) return exact
     const beforeDash = raw.split('—')[0].trim()
-    const exact2 = scopedParts.find((p) => p.sku.toLowerCase() === beforeDash.toLowerCase())
+    const exact2 = parts.find((p) => p.sku.toLowerCase() === beforeDash.toLowerCase())
     if (exact2) return exact2
     const tokens = raw.toLowerCase().split(/[\s,()-]+/).filter(Boolean)
-    const matches = scopedParts.filter((p) => {
+    const matches = parts.filter((p) => {
       const hay = `${p.sku} ${p.name} ${p.category ?? ''}`.toLowerCase()
       return tokens.every((t) => hay.includes(t))
     })
