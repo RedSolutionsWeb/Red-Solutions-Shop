@@ -35,7 +35,6 @@ const NAV: NavItem[] = [
   { key: 'bundles', label: 'Bundles', path: '/bundles', hidden: !BUNDLES_ENABLED, count: (c) => c.bundles },
   { key: 'customers', label: 'Customers', path: '/customers', count: (c) => c.customers },
   { key: 'drones', label: 'Drone history', path: '/drones' },
-  { key: 'feedback', label: 'Report a problem', path: '/feedback', count: (c) => (c.openFeedback > 0 ? c.openFeedback : undefined) },
   {
     key: 'orders',
     label: 'Dealer orders',
@@ -49,6 +48,7 @@ const NAV: NavItem[] = [
   { key: 'counts', label: 'Inventory count', path: '/counts' },
   { key: 'reports', label: 'Reports', path: '/reports', managerOnly: true },
   { key: 'users', label: 'Users', path: '/users', ownerOnly: true },
+  { key: 'feedback', label: 'Report a problem', path: '/feedback', count: (c) => (c.openFeedback > 0 ? c.openFeedback : undefined) },
 ]
 
 const ROLE_LABEL: Record<Role, string> = { owner: 'Owner', sales: 'Sales', tech: 'Tech' }
