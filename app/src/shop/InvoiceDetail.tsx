@@ -186,6 +186,13 @@ export function InvoiceDetail() {
           </div>
         )}
 
+        {ticket?.warranty === 'warranty' && (
+          <div style={{ marginTop: 12 }}>
+            <div className="kicker">Notes</div>
+            <div style={{ fontWeight: 700 }}>Warranty Pending Approval from Manufacturer</div>
+          </div>
+        )}
+
         <div style={{ marginTop: 12 }}>
           <Select value={invoice.rep ?? ''} onChange={(e) => setRep(e.target.value)} style={{ maxWidth: 240 }}>
             <option value="">Unassigned</option>

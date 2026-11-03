@@ -29,7 +29,7 @@ export function invoiceMemo(ctx: QboContext): string {
     // in the memo so it isn't mistaken for an ordinary tax-exempt sale —
     // a CSV cell can't carry bold, so **asterisks** mark it for whoever
     // bolds it by hand once the invoice is in QuickBooks.
-    if (ctx.ticket.warranty === 'warranty') memo = `**Turn in to Warranty** — ${memo}`
+    if (ctx.ticket.warranty === 'warranty') memo = `**Warranty Pending Approval from Manufacturer** — ${memo}`
     else if (ctx.ticket.warranty === 'insurance') memo = `**Turn in to Insurance** — ${memo}`
   } else if (ctx.order) {
     const po = ctx.order.po ? ` — PO ${ctx.order.po}` : ''
