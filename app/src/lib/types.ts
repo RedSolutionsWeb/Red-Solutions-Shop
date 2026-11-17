@@ -31,6 +31,7 @@ export interface Feedback {
   created_at: string
   resolved_at: string | null
   resolved_by: string | null
+  reporter_seen: boolean
 }
 
 export interface DealerUser {

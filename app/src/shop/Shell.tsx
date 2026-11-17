@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import type { Role } from '../lib/types'
+import { supabase } from '../lib/supabase'
+import type { Feedback, Role } from '../lib/types'
 import { useReload } from './ReloadContext'
 import { useNavCounts } from './navCounts'
 import { Button } from '../ui/Button'
@@ -85,6 +86,20 @@ function ShellInner({ role, name }: { role: Role; name: string }) {
   const items = NAV.filter((n) => !n.hidden && (!n.ownerOnly || isOwner) && (!n.managerOnly || isManager))
   const toast = useToast()
   const [pinOpen, setPinOpen] = useState(false)
+
+  // Let a reporter know their issue got fixed, once, the next time
+  // they're anywhere in the app -- not just if they happen to revisit
+  // "Report a problem".
+  useEffect(() => {
+    supabase.rpc('my_feedback').then(({ data }) => {
+      const unseen = ((data as Feedback[]) ?? []).filter((r) => r.status === 'resolved' && !r.reporter_seen)
+      for (const r of unseen) {
+        toast(`Your reported issue was resolved: "${r.message.slice(0, 80)}${r.message.length > 80 ? '…' : ''}"`)
+        supabase.rpc('ack_feedback_seen', { p_id: r.id })
+      }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="app-shell">

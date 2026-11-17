@@ -47,6 +47,7 @@ export function Feedback() {
   const isOwner = identity?.kind === 'staff' && identity.profile.role === 'owner'
 
   const [rows, setRows] = useState<FeedbackRow[]>([])
+  const [mine, setMine] = useState<FeedbackRow[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [message, setMessage] = useState('')
   const [expected, setExpected] = useState('')
@@ -54,12 +55,16 @@ export function Feedback() {
   const lastPath = sessionStorage.getItem('rs_last_path')
 
   async function load() {
-    const [feedbackRes, profilesRes] = await Promise.all([
-      supabase.from('feedback').select('*').order('created_at', { ascending: false }),
+    const [feedbackRes, profilesRes, mineRes] = await Promise.all([
+      isOwner
+        ? supabase.from('feedback').select('*').order('created_at', { ascending: false })
+        : Promise.resolve({ data: [] as FeedbackRow[] }),
       supabase.from('profiles').select('*'),
+      supabase.rpc('my_feedback'),
     ])
     setRows((feedbackRes.data as FeedbackRow[]) ?? [])
     setProfiles((profilesRes.data as Profile[]) ?? [])
+    setMine((mineRes.data as FeedbackRow[]) ?? [])
   }
 
   useEffect(() => {
@@ -94,7 +99,7 @@ export function Feedback() {
     if (!identity || identity.kind !== 'staff') return
     await supabase
       .from('feedback')
-      .update({ status: 'resolved', resolved_at: new Date().toISOString(), resolved_by: identity.profile.id })
+      .update({ status: 'resolved', resolved_at: new Date().toISOString(), resolved_by: identity.profile.id, reporter_seen: false })
       .eq('id', id)
     load()
   }
@@ -129,9 +134,25 @@ export function Feedback() {
         </div>
       </div>
 
+      {mine.length > 0 && (
+        <>
+          <h3 style={{ marginTop: 32, marginBottom: 8 }}>Your reports</h3>
+          {mine.map((r) => (
+            <div key={r.id} className="card" style={{ padding: 16, marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <span className="muted" style={{ fontSize: 12 }}>{new Date(r.created_at).toLocaleString()}</span>
+                {r.status === 'open' ? <Tag variant="outline">Open</Tag> : <Tag variant="neutral">Resolved</Tag>}
+              </div>
+              <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>{r.message}</div>
+            </div>
+          ))}
+        </>
+      )}
+
       {!isOwner && (
-        <p className="muted" style={{ marginTop: 32 }}>
-          This goes directly to Jackson — only he can see what's been reported.
+        <p className="muted" style={{ marginTop: 16 }}>
+          Reports go directly to Jackson — only he can see the full list, but you can always check the status of
+          your own reports here.
         </p>
       )}
 
