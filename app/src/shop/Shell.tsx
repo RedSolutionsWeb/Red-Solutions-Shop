@@ -10,6 +10,7 @@ import { Logo } from '../ui/Logo'
 import { Dialog } from '../ui/Dialog'
 import { ChangePasswordForm } from './ChangePassword'
 import { useToast } from '../ui/Toast'
+import { disablePush, enablePush, getPushSubscription, pushSupported } from '../lib/webpush'
 
 interface NavItem {
   key: string
@@ -63,10 +64,10 @@ const ROLE_LABEL: Record<Role, string> = { owner: 'Owner', sales: 'Sales', tech:
 export function Shell() {
   const { identity } = useAuth()
   if (identity?.kind !== 'staff') return null
-  return <ShellInner role={identity.profile.role} name={identity.profile.name} />
+  return <ShellInner role={identity.profile.role} name={identity.profile.name} userId={identity.profile.id} />
 }
 
-function ShellInner({ role, name }: { role: Role; name: string }) {
+function ShellInner({ role, name, userId }: { role: Role; name: string; userId: string }) {
   const isOwner = role === 'owner'
   const isManager = role === 'owner' || role === 'sales'
   const { signOut } = useAuth()
@@ -86,6 +87,31 @@ function ShellInner({ role, name }: { role: Role; name: string }) {
   const items = NAV.filter((n) => !n.hidden && (!n.ownerOnly || isOwner) && (!n.managerOnly || isManager))
   const toast = useToast()
   const [pinOpen, setPinOpen] = useState(false)
+  const [pushOn, setPushOn] = useState(false)
+  const [pushBusy, setPushBusy] = useState(false)
+
+  useEffect(() => {
+    if (!pushSupported()) return
+    getPushSubscription().then((sub) => setPushOn(!!sub))
+  }, [])
+
+  async function togglePush() {
+    setPushBusy(true)
+    try {
+      if (pushOn) {
+        await disablePush()
+        setPushOn(false)
+        toast('Notifications turned off')
+      } else {
+        await enablePush(userId)
+        setPushOn(true)
+        toast('Notifications turned on')
+      }
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Could not change notification settings')
+    }
+    setPushBusy(false)
+  }
 
   // Let a reporter know their issue got fixed, once, the next time
   // they're anywhere in the app -- not just if they happen to revisit
@@ -177,6 +203,11 @@ function ShellInner({ role, name }: { role: Role; name: string }) {
             <strong>{name}</strong>{' '}
             <span style={{ opacity: 0.6 }}>{ROLE_LABEL[role]}</span>
           </div>
+          {pushSupported() && (
+            <Button variant="ghost" onClick={togglePush} disabled={pushBusy}>
+              {pushOn ? 'Notifications on' : 'Enable notifications'}
+            </Button>
+          )}
           <Button variant="ghost" onClick={() => setPinOpen(true)}>
             Change password
           </Button>

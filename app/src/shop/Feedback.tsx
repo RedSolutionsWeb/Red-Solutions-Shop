@@ -101,6 +101,9 @@ export function Feedback() {
       .from('feedback')
       .update({ status: 'resolved', resolved_at: new Date().toISOString(), resolved_by: identity.profile.id, reporter_seen: false })
       .eq('id', id)
+    // Best-effort — the in-app toast/"Your reports" list already cover
+    // this if the reporter has no device subscribed, or the push fails.
+    supabase.functions.invoke('send-push', { body: { feedback_id: id } })
     load()
   }
 
