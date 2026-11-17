@@ -89,11 +89,30 @@ function ShellInner({ role, name, userId }: { role: Role; name: string; userId: 
   const [pinOpen, setPinOpen] = useState(false)
   const [pushOn, setPushOn] = useState(false)
   const [pushBusy, setPushBusy] = useState(false)
+  const [bannerDismissed, setBannerDismissed] = useState(() => {
+    try {
+      return localStorage.getItem('rs_push_banner_dismissed') === '1'
+    } catch {
+      return false
+    }
+  })
 
   useEffect(() => {
     if (!pushSupported()) return
     getPushSubscription().then((sub) => setPushOn(!!sub))
   }, [])
+
+  function dismissBanner() {
+    setBannerDismissed(true)
+    try {
+      localStorage.setItem('rs_push_banner_dismissed', '1')
+    } catch {
+      // ignore — banner just won't be remembered across reloads
+    }
+  }
+
+  const showPushBanner =
+    pushSupported() && !pushOn && !bannerDismissed && typeof Notification !== 'undefined' && Notification.permission !== 'denied'
 
   async function togglePush() {
     setPushBusy(true)
@@ -105,6 +124,7 @@ function ShellInner({ role, name, userId }: { role: Role; name: string; userId: 
       } else {
         await enablePush(userId)
         setPushOn(true)
+        dismissBanner()
         toast('Notifications turned on')
       }
     } catch (e) {
@@ -221,6 +241,32 @@ function ShellInner({ role, name, userId }: { role: Role; name: string; userId: 
             New intake
           </Button>
         </header>
+        {showPushBanner && (
+          <div
+            className="no-print"
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              padding: '10px 24px',
+              background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
+              borderBottom: '2px solid var(--color-divider)',
+              fontSize: 13,
+            }}
+          >
+            <span>Turn on notifications to know the moment something you reported gets fixed.</span>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Button variant="primary" onClick={togglePush} disabled={pushBusy}>
+                Enable notifications
+              </Button>
+              <Button variant="ghost" onClick={dismissBanner}>
+                Not now
+              </Button>
+            </div>
+          </div>
+        )}
         <main style={{ flex: 1, padding: 24 }}>
           <Outlet />
         </main>
