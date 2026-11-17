@@ -226,6 +226,28 @@ export interface Invoice {
   voided_at: string | null
 }
 
+export type PurchaseOrderStatus = 'ordered' | 'partial' | 'received' | 'cancelled'
+
+export interface PurchaseOrder {
+  id: number
+  vendor: string
+  status: PurchaseOrderStatus
+  notes: string | null
+  created_by: string | null
+  created_at: string
+  received_at: string | null
+}
+
+export interface PurchaseOrderLine {
+  id: number
+  po_id: number
+  sku: string
+  description: string
+  qty_ordered: number
+  qty_received: number
+  cost: number
+}
+
 export interface InvoiceLine {
   id: number
   invoice_id: string

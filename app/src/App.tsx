@@ -17,6 +17,7 @@ import { Feedback } from './shop/Feedback'
 import { Invoicing } from './shop/Invoicing'
 import { InvoiceDetail } from './shop/InvoiceDetail'
 import { InventoryCounts, InventoryCountDetail } from './shop/InventoryCount'
+import { PurchaseOrders, PurchaseOrderDetail } from './shop/PurchaseOrders'
 import { Dealers } from './shop/Dealers'
 import { DealerOrders } from './shop/DealerOrders'
 import { DealerOrderDetail } from './shop/DealerOrderDetail'
@@ -53,6 +54,8 @@ function Gate() {
           <Route path="invoices/:id" element={<InvoiceDetail />} />
           <Route path="counts" element={<InventoryCounts />} />
           <Route path="counts/:id" element={<InventoryCountDetail />} />
+          <Route path="purchase-orders" element={<PurchaseOrders />} />
+          <Route path="purchase-orders/:id" element={<PurchaseOrderDetail />} />
           <Route
             path="orders"
             element={

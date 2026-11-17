@@ -10,6 +10,7 @@ export interface NavCounts {
   dealers: number
   invoices: number
   openFeedback: number
+  openPOs: number
 }
 
 const empty: NavCounts = {
@@ -21,6 +22,7 @@ const empty: NavCounts = {
   dealers: 0,
   invoices: 0,
   openFeedback: 0,
+  openPOs: 0,
 }
 
 // Not live-subscribed — refetched by bumping `reloadKey` after a mutation
@@ -31,13 +33,14 @@ export function useNavCounts(reloadKey: number, isManager: boolean) {
   useEffect(() => {
     let cancelled = false
     async function load() {
-      const [tickets, parts, bundles, customers, invoices, feedback] = await Promise.all([
+      const [tickets, parts, bundles, customers, invoices, feedback, purchaseOrders] = await Promise.all([
         supabase.from('tickets').select('id', { count: 'exact', head: true }).neq('status', 'invoiced').is('deleted_at', null),
         supabase.from('parts_view').select('sku', { count: 'exact', head: true }),
         supabase.from('bundles').select('id', { count: 'exact', head: true }),
         supabase.from('customers').select('id', { count: 'exact', head: true }),
         supabase.from('invoices').select('id', { count: 'exact', head: true }).is('voided_at', null),
         supabase.from('feedback').select('id', { count: 'exact', head: true }).eq('status', 'open'),
+        supabase.from('purchase_orders').select('id', { count: 'exact', head: true }).in('status', ['ordered', 'partial']),
       ])
       let pendingOrders = 0
       let dealers = 0
@@ -62,6 +65,7 @@ export function useNavCounts(reloadKey: number, isManager: boolean) {
           pendingOrders,
           dealers,
           openFeedback: feedback.count ?? 0,
+          openPOs: purchaseOrders.count ?? 0,
         })
       }
     }

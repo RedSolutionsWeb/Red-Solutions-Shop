@@ -46,6 +46,12 @@ const NAV: NavItem[] = [
   { key: 'dealers', label: 'Dealers', path: '/dealers', managerOnly: true, hidden: !DEALERS_ENABLED, count: (c) => c.dealers },
   { key: 'invoices', label: 'Invoicing', path: '/invoices', count: (c) => c.invoices },
   { key: 'counts', label: 'Inventory count', path: '/counts' },
+  {
+    key: 'purchase-orders',
+    label: 'Purchase orders',
+    path: '/purchase-orders',
+    count: (c) => (c.openPOs > 0 ? c.openPOs : undefined),
+  },
   { key: 'reports', label: 'Reports', path: '/reports', managerOnly: true },
   { key: 'users', label: 'Users', path: '/users', ownerOnly: true },
   { key: 'feedback', label: 'Report a problem', path: '/feedback', count: (c) => (c.openFeedback > 0 ? c.openFeedback : undefined) },
