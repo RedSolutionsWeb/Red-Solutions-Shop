@@ -57,6 +57,8 @@ export interface Customer {
   contact: string | null
   phone: string | null
   email: string | null
+  parts_markup_pct: number | null
+  labor_rate: number | null
 }
 
 export interface Part {

@@ -64,12 +64,16 @@ export function TicketDetail() {
   const [rateTouched, setRateTouched] = useState(false)
   const [flash, setFlash] = useState('')
 
-  // Keep the rate field pre-filled with the shop's labor rate until the
-  // user actually edits it (settings load async, so this also covers the
-  // rate arriving after the field's already rendered with the fallback).
+  // Keep the rate field pre-filled with the customer's own labor rate if
+  // they have one (e.g. RedAir's $50/hr), else the shop's default --
+  // until the user actually edits it (settings/customer load async, so
+  // this also covers either arriving after the field's already rendered
+  // with a fallback).
+  const defaultLaborRate = customer?.labor_rate ?? settings.labor_rate
   useEffect(() => {
-    if (!rateTouched) setLaborRate(String(settings.labor_rate))
-  }, [settings.labor_rate, rateTouched])
+    if (!rateTouched) setLaborRate(String(defaultLaborRate))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultLaborRate, rateTouched])
 
   async function load() {
     if (!id) return
@@ -183,11 +187,11 @@ export function TicketDetail() {
       setFlash('Enter how many hours this took')
       return
     }
-    const rate = Number(laborRate) || settings.labor_rate
+    const rate = Number(laborRate) || defaultLaborRate
     await supabase.from('labor_lines').insert({ ticket_id: ticket.id, description: laborDesc, hours, rate })
     setLaborDesc('')
     setLaborHours('')
-    setLaborRate(String(settings.labor_rate))
+    setLaborRate(String(defaultLaborRate))
     setRateTouched(false)
     load()
   }
@@ -315,6 +319,14 @@ export function TicketDetail() {
             <div className="muted" style={{ fontSize: 13 }}>
               {contactLine}
             </div>
+            {(customer?.parts_markup_pct != null || customer?.labor_rate != null) && (
+              <div style={{ fontSize: 12, color: 'var(--color-accent)', marginTop: 2 }}>
+                Special pricing:
+                {customer?.parts_markup_pct != null ? ` parts at cost +${customer.parts_markup_pct}%` : ''}
+                {customer?.parts_markup_pct != null && customer?.labor_rate != null ? ',' : ''}
+                {customer?.labor_rate != null ? ` labor $${customer.labor_rate}/hr` : ''}
+              </div>
+            )}
           </div>
           <div style={{ fontSize: 28, fontFamily: 'var(--font-heading)', fontWeight: 800 }}>{money(grand)}</div>
         </div>
