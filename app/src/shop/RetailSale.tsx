@@ -7,6 +7,7 @@ import type { Customer, PartView } from '../lib/types'
 import { money } from '../lib/money'
 import { Field, Input, Select } from '../ui/Field'
 import { Button } from '../ui/Button'
+import { searchParts } from '../lib/partSearch'
 
 interface CartLine {
   sku: string
@@ -262,7 +263,7 @@ export function RetailSale() {
           onChange={(e) => setSkuText(e.target.value)}
         />
         <datalist id="retail-part-lookup">
-          {sellableParts.slice(0, 60).map((p) => (
+          {searchParts(sellableParts, skuText).map((p) => (
             <option key={p.sku} value={`${p.sku} — ${p.name}`}>
               {p.category === 'Service' ? `service, ${money(p.price)}` : `${p.qty_on_hand} on hand, ${money(p.price)}`}
             </option>

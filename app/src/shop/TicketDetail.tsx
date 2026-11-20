@@ -12,6 +12,7 @@ import { Button } from '../ui/Button'
 import { Field, Input, Select, Textarea } from '../ui/Field'
 import { Dialog } from '../ui/Dialog'
 import { DRONE_MAKES, DRONE_MODELS } from '../lib/droneOptions'
+import { searchParts } from '../lib/partSearch'
 
 function formatElapsed(ms: number) {
   const total = Math.max(0, Math.floor(ms / 1000))
@@ -573,7 +574,7 @@ export function TicketDetail() {
             onChange={(e) => setSkuText(e.target.value)}
           />
           <datalist id="part-lookup">
-            {scopedParts.slice(0, 60).map((p) => (
+            {searchParts(scopedParts, skuText).map((p) => (
               <option key={p.sku} value={`${p.sku} — ${p.name}`}>
                 {p.category === 'Service' ? `service, ${money(p.price)}` : `${p.qty_on_hand} on hand, ${money(p.price)}`}
               </option>

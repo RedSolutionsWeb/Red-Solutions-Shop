@@ -5,6 +5,7 @@ import type { BundlePricing, PartView } from '../lib/types'
 import { money } from '../lib/money'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Field'
+import { searchParts } from '../lib/partSearch'
 
 export function Bundles() {
   const { bump } = useReload()
@@ -181,7 +182,7 @@ export function Bundles() {
               onChange={(e) => setCompSku(e.target.value)}
             />
             <datalist id="bundle-part-lookup">
-              {parts.slice(0, 60).map((p) => (
+              {searchParts(parts, compSku).map((p) => (
                 <option key={p.sku} value={`${p.sku} — ${p.name}`} />
               ))}
             </datalist>

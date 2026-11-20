@@ -10,6 +10,7 @@ import { Field, Input, Textarea } from '../ui/Field'
 import { Button } from '../ui/Button'
 import { Tag } from '../ui/Tag'
 import { Dialog } from '../ui/Dialog'
+import { searchParts } from '../lib/partSearch'
 
 interface DraftLine {
   sku: string
@@ -157,7 +158,7 @@ export function PurchaseOrders() {
               onChange={(e) => setSkuText(e.target.value)}
             />
             <datalist id="po-part-lookup">
-              {parts.slice(0, 60).map((p) => (
+              {searchParts(parts, skuText).map((p) => (
                 <option key={p.sku} value={`${p.sku} — ${p.name}`}>
                   {p.qty_on_hand} on hand
                 </option>
